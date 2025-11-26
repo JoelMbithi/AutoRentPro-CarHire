@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Primary Colors - Trust & Professionalism */
+  --color-primary: #1e40af;           /* Confident Blue - Trust, Reliability */
+  --color-primary-light: #3b82f6;     /* Corporate Blue - Action, Modern */
+  --color-primary-dark: #1e3a8a;      /* Deep Navy - Authority */
+  
+  /* Secondary Colors - Sophistication */
+  --color-secondary: #374151;         /* Charcoal Gray - Professional */
+  --color-secondary-light: #6b7280;   /* Medium Gray - Secondary Elements */
+  
+  /* Accent Colors - Energy & Action */
+  --color-accent: #dc2626;            /* Red Accent - Urgency, CTAs */
+  --color-accent-secondary: #059669;  /* Green - Success, Eco-friendly */
+  
+  /* Background & Surface */
+  --color-bg: #ffffff;                /* Clean White Background */
+  --color-bg-secondary: #f8fafc;      /* Light Gray Surface */
+  --color-bg-dark: #0f172a;           /* Dark for footer/special sections */
+  
+  /* Text Colors */
+  --color-text: #1f2937;              /* Primary Text - Professional Dark */
+  --color-text-light: #6b7280;        /* Secondary Text */
+  --color-text-inverse: #ffffff;      /* White Text on Dark Backgrounds */
+  
+  /* Functional Colors */
+  --color-success: #059669;           /* Success Green */
+  --color-warning: #d97706;           /* Warning Amber */
+  --color-error: #dc2626;             /* Error Red */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', 'Segoe UI', Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+/* Add these animations to your global CSS */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 1s ease-out 0.3s both;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float 3s ease-in-out 1.5s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
 }

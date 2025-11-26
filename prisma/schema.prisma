@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+    engineType      = "binary"  // default, works for TS
+  transpile       = true      // transpile client to TS-friendly format
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id             Int       @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String    @unique
+  phone          String
+  password       String
+  drivingLicense String
+  dateOfBirth    DateTime?
+  address        String?
+  city           String?
+  country        String?
+  isVerified     Boolean   @default(false)
+  role           UserRole  @default(CUSTOMER)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  bookings    Booking[]
+  userProfile UserProfile?
+  
+  @@map("users")
+}
+
+model UserProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  avatar      String?
+  preferences Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@map("user_profiles")
+}
+
+model Car {
+  id          Int      @id @default(autoincrement())
+  make        String
+  model       String
+  year        String
+  price       String
+  image       String
+  fuelType    FuelType
+  seats       Int
+  transmission Transmission
+  drive       DriveType
+  category    CarCategory
+  rating      Float
+  reviews     Int
+  power       String
+  isAvailable Boolean  @default(true)
+  location    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bookings Booking[]
+  
+  @@map("cars")
+}
+
+model Booking {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  carId        Int
+  startDate    DateTime
+  endDate      DateTime
+  totalPrice   Float
+  status       BookingStatus @default(PENDING)
+  pickupLocation  String
+  dropoffLocation String
+  specialRequests String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  car  Car  @relation(fields: [carId], references: [id])
+  
+  @@map("bookings")
+}
+
+// Enums
+enum UserRole {
+  CUSTOMER
+  AGENT
+  ADMIN
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+}
+
+enum DriveType {
+  FWD
+  RWD
+  AWD
+  FOUR_WD
+}
+
+enum CarCategory {
+  ECONOMY
+  COMPACT
+  MIDSIZE
+  STANDARD
+  FULLSIZE
+  LUXURY
+  SUV
+  SPORTS
+  MINIVAN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
