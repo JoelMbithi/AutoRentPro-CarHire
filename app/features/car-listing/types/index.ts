@@ -6,7 +6,7 @@ export interface CarProps {
   seats: number;
   gear: string;
   drive: string;
-  price: number;
+  price: number | string;
   power: string;
   year: string;
   featured: boolean;

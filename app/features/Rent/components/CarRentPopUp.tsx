@@ -25,8 +25,41 @@ const CarRentPopUp: React.FC<CarRentPopUpProps> = ({
 
   if (!showPopup || !selectedCar) return null;
 
-  const calculateTotal = () => {
-    return rentalDays * Number(selectedCar.price);
+  const calculateTotal = (): number => {
+    console.log(' Calculating total...');
+    console.log(' rentalDays:', rentalDays, 'type:', typeof rentalDays);
+    console.log(' selectedCar.price:', selectedCar.price, 'type:', typeof selectedCar.price);
+    
+    // Convert both values to numbers safely
+    const days = Number(rentalDays);
+    let price: number;
+    
+    // Handle different price formats
+    if (typeof selectedCar.price === 'string') {
+      // If it's a string, remove any non-numeric characters except decimal point
+      const priceString = selectedCar.price.replace(/[^\d.]/g, '');
+      price = parseFloat(priceString);
+      console.log(' Cleaned price string:', priceString, 'converted to:', price);
+    } else {
+      price = Number(selectedCar.price);
+    }
+    
+    console.log(' Converted days:', days, 'price:', price);
+    
+    // Check if conversion was successful
+    if (isNaN(days) || isNaN(price)) {
+      console.error(' Invalid number conversion:', {
+        originalDays: rentalDays,
+        originalPrice: selectedCar.price,
+        convertedDays: days,
+        convertedPrice: price
+      });
+      return 0;
+    }
+    
+    const total = days * price;
+    console.log('Total calculated:', total);
+    return total;
   };
 
   const handleProceedToPayment = () => {
@@ -38,58 +71,12 @@ const CarRentPopUp: React.FC<CarRentPopUpProps> = ({
     setPaymentStep('payment');
   };
 
-  const handleMpesaPayment = async () => {
-    if (!phoneNumber) {
-      alert('Please enter your M-Pesa phone number');
-      return;
-    }
-
-    // Validate phone number format (Kenyan)
-    const phoneRegex = /^(?:254|\+254|0)?(7[0-9]{8})$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      alert('Please enter a valid Kenyan phone number');
-      return;
-    }
-
-    try {
-      setIsProcessing(true);
-
-      // Call your M-Pesa API endpoint
-      const response = await fetch('/api/mpesa-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          carId: selectedCar.id,
-          carName: selectedCar.name,
-          rentalDays,
-          pickupDate,
-          totalAmount: calculateTotal(),
-          phoneNumber: formatPhoneNumber(phoneNumber),
-          carImage: selectedCar.img,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process M-Pesa payment');
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setPaymentStep('confirmation');
-        // You might want to show a success message or redirect to a success page
-      } else {
-        alert('Payment failed: ' + (result.message || 'Please try again'));
-      }
-
-    } catch (error) {
-      console.error('M-Pesa payment error:', error);
-      alert('Payment failed. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+  // ADD THIS HELPER FUNCTION
+  const calculateDropoffDate = (pickupDate: string, days: number): string => {
+    if (!pickupDate) return '';
+    const date = new Date(pickupDate);
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
   };
 
   const formatPhoneNumber = (phone: string): string => {
@@ -106,6 +93,139 @@ const CarRentPopUp: React.FC<CarRentPopUpProps> = ({
     }
     return cleaned;
   };
+
+  // SINGLE handleMpesaPayment FUNCTION (REMOVED DUPLICATE)
+const handleMpesaPayment = async () => {
+  if (!phoneNumber) {
+    alert('Please enter your M-Pesa phone number');
+    return;
+  }
+
+  // Validate phone number format (Kenyan)
+  const phoneRegex = /^(?:254|\+254|0)?(7[0-9]{8})$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    alert('Please enter a valid Kenyan phone number');
+    return;
+  }
+
+  try {
+    setIsProcessing(true);
+    console.log(' Starting M-Pesa payment...');
+
+    // Prepare the request data
+    const requestData = {
+      carId: selectedCar.id,
+      carName: selectedCar.name,
+      rentalDays,
+      pickupDate,
+      dropoffDate: calculateDropoffDate(pickupDate, rentalDays),
+      totalAmount: calculateTotal(),
+      phoneNumber: formatPhoneNumber(phoneNumber),
+      carImage: selectedCar.img,
+      userId: 1,
+      pickupLocation: "Nairobi",
+      dropoffLocation: "Nairobi",
+      specialRequests: ""
+    };
+
+    console.log(' Sending request data:', requestData);
+
+    // Step 1: Initiate M-Pesa payment
+    const response = await fetch('/features/Rent/api/mpesa-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    console.log(' Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(' API error response:', errorData);
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('API initiation response:', result);
+    
+    if (result.success) {
+      //  IMPORTANT: Don't show success immediately!
+      // Wait and check the actual payment status
+      console.log(' Payment initiated. Checking status...');
+      
+      const checkoutRequestID = result.checkoutRequestID;
+      
+      // Step 2: Wait and check payment status multiple times
+      let paymentCompleted = false;
+      let attempts = 0;
+      const maxAttempts = 30; // Check for 30 seconds (30 * 1 second)
+      
+      while (!paymentCompleted && attempts < maxAttempts) {
+        attempts++;
+        console.log(` Checking payment status (attempt ${attempts})...`);
+        
+        // Wait 1 second before checking
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check payment status
+        const statusResponse = await fetch('/features/Rent/api/check-payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ checkoutRequestID }),
+        });
+        
+        if (statusResponse.ok) {
+          const statusResult = await statusResponse.json();
+          console.log(' Payment status:', statusResult);
+          
+          if (statusResult.paymentStatus === 'COMPLETED') {
+            // Payment actually succeeded
+            paymentCompleted = true;
+            setPaymentStep('confirmation');
+            console.log('Payment completed successfully!');
+            break;
+          } else if (statusResult.paymentStatus === 'FAILED') {
+            //  Payment failed or was cancelled
+            throw new Error(statusResult.payment?.failureReason || 'Payment failed or was cancelled');
+          }
+          // If still PENDING, continue waiting
+        }
+      }
+      
+      if (!paymentCompleted) {
+        throw new Error('Payment confirmation timeout. Please check your M-Pesa messages.');
+      }
+      
+    } else {
+      throw new Error(result.message || 'Payment initiation failed');
+    }
+
+  } catch (error: unknown) {
+    console.error(' M-Pesa payment error:', error);
+    const getErrorMessage = (err: unknown) => {
+      if (err instanceof Error) return err.message;
+      if (typeof err === 'string') return err;
+      try {
+        return JSON.stringify(err);
+      } catch {
+        return 'An unknown error occurred';
+      }
+    };
+    
+    const errorMessage = getErrorMessage(error);
+    alert(`Payment failed: ${errorMessage}`);
+    
+    // Reset to payment step so user can try again
+    setPaymentStep('payment');
+    
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   const handleBackToDetails = () => {
     if (paymentStep === 'payment') {
