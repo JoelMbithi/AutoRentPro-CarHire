@@ -52,7 +52,7 @@ const Edition = () => {
           {/* Section 1 - Top Left */}
           <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-left">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-              🚗 Luxury Fleet
+               Luxury Fleet
             </h2>
             <p className="text-gray-200 text-lg leading-relaxed">
               Discover our exclusive collection of premium vehicles, from sleek sedans to powerful SUVs. 
@@ -63,7 +63,7 @@ const Edition = () => {
           {/* Section 2 - Top Right */}
           <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-right">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-              ⭐ Unmatched Service
+               Unmatched Service
             </h2>
             <p className="text-gray-200 text-lg leading-relaxed">
               Experience white-glove service with personalized attention. Our dedicated team ensures 
@@ -74,7 +74,8 @@ const Edition = () => {
           {/* Section 3 - Bottom Left */}
           <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-left animation-delay-400">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-              💰 Flexible Plans
+              
+               Flexible Plans
             </h2>
             <p className="text-gray-200 text-lg leading-relaxed">
               Choose from daily, weekly, or monthly rental options tailored to your needs. 
@@ -85,7 +86,7 @@ const Edition = () => {
           {/* Section 4 - Bottom Right */}
           <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-right animation-delay-400">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-              🌍 Nationwide Coverage
+               Nationwide Coverage
             </h2>
             <p className="text-gray-200 text-lg leading-relaxed">
               Pick up and drop off at multiple locations across the country. 
@@ -103,7 +104,7 @@ const Edition = () => {
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     {/* Feature 1 */}
     <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3">🏆</div>
+      <div className="text-3xl mb-3"></div>
       <h3 className="text-xl font-bold text-orange-300 mb-2">Award Winning</h3>
       <p className="text-gray-200 text-sm">
         5-time winner of "Best Luxury Rental Service" with 50,000+ satisfied customers
@@ -112,7 +113,7 @@ const Edition = () => {
 
     {/* Feature 2 */}
     <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3">🛡️</div>
+      <div className="text-3xl mb-3"></div>
       <h3 className="text-xl font-bold text-orange-300 mb-2">Fully Insured</h3>
       <p className="text-gray-200 text-sm">
         Comprehensive coverage with zero deductibles and 24/7 roadside assistance
@@ -121,7 +122,7 @@ const Edition = () => {
 
     {/* Feature 3 */}
     <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3">⚡</div>
+      <div className="text-3xl mb-3"></div>
       <h3 className="text-xl font-bold text-orange-300 mb-2">Instant Booking</h3>
       <p className="text-gray-200 text-sm">
         Reserve your dream car in 2 minutes with our streamlined digital process
@@ -130,7 +131,7 @@ const Edition = () => {
 
     {/* Feature 4 */}
     <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3">🌍</div>
+      <div className="text-3xl mb-3"></div>
       <h3 className="text-xl font-bold text-orange-300 mb-2">Global Network</h3>
       <p className="text-gray-200 text-sm">
         Pick up and drop off at 200+ locations across 25 countries worldwide
@@ -211,7 +212,7 @@ const Edition = () => {
       📞 Book Consultation
     </button>
     <button className="border border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white px-8 py-3 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
-      ⭐ Read Reviews
+       Read Reviews
     </button>
   </div>
 </div>

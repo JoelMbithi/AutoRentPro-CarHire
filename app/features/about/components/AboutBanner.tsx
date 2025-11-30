@@ -31,9 +31,9 @@ const AboutBanner = () => {
           <Link href={"/vehicles"} className='px-6 py-3 bg-orange-500 rounded-lg font-medium hover:bg-orange-600 transition'>
             Explore Fleet
           </Link>
-          <button className='px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition'>
+           <Link href={"/contact"} className='px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition'>
             Contact Us
-          </button>
+         </Link>
         </div>
       </div>
 

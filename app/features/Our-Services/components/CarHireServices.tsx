@@ -1,12 +1,10 @@
-
 'use client';
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { FaStar, FaShieldAlt, FaMapMarkerAlt, FaPhone, FaClock, FaCar, FaGasPump, FaUserFriends, FaCog, FaCreditCard } from 'react-icons/fa';
-import { IoSpeedometer, IoLocationSharp } from 'react-icons/io5';
-
-
+import { FaStar, FaShieldAlt, FaMapMarkerAlt, FaPhone, FaClock, FaCar, FaGasPump, FaUserFriends, FaCog, FaCreditCard, FaCheck, FaPlay, FaArrowRight } from 'react-icons/fa';
+import { IoSpeedometer, IoLocationSharp, IoHeart, IoShieldCheckmark } from 'react-icons/io5';
+import Link from 'next/link';
 
 interface ServiceFeature {
   icon: React.ReactNode;
@@ -29,43 +27,39 @@ const CarHireServices = () => {
   const [pickupLocation, setPickupLocation] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('cars');
 
- 
-
-  // Service features with icons
+  // Service features with your orange color scheme
   const serviceFeatures: ServiceFeature[] = [
     {
-      icon: <FaCar className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><FaCar className="text-2xl text-white" /></div>,
       title: 'Wide Selection',
       description: 'Choose from 50+ economy to luxury vehicles for every need and budget. Regular fleet updates with latest models.'
     },
     {
-      icon: <FaCreditCard className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><FaCreditCard className="text-2xl text-white" /></div>,
       title: 'Best Prices',
       description: 'Competitive rates with no hidden fees. Price match guarantee and special discounts for long-term rentals.'
     },
     {
-      icon: <IoSpeedometer className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><IoSpeedometer className="text-2xl text-white" /></div>,
       title: 'Instant Booking',
       description: 'Reserve your vehicle in minutes with our easy online system. Real-time availability and instant confirmation.'
     },
     {
-      icon: <FaShieldAlt className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><IoShieldCheckmark className="text-2xl text-white" /></div>,
       title: 'Full Insurance',
       description: 'Comprehensive coverage options including collision damage waiver and theft protection for complete peace of mind.'
     },
     {
-      icon: <IoLocationSharp className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><IoLocationSharp className="text-2xl text-white" /></div>,
       title: 'Multiple Locations',
       description: '15+ convenient pickup and drop-off points across the city including airport and downtown locations.'
     },
     {
-      icon: <FaPhone className="text-3xl text-orange-600" />,
+      icon: <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25"><FaPhone className="text-2xl text-white" /></div>,
       title: '24/7 Support',
       description: 'Round-the-clock customer service and roadside assistance for any assistance needed during your rental period.'
     }
   ];
-
-
 
   // Locations
   const locations: Location[] = [
@@ -99,120 +93,127 @@ const CarHireServices = () => {
     }
   ];
 
- 
   // Insurance options
   const insuranceOptions = [
     {
       name: 'Basic Coverage',
       price: '$15/day',
-      features: ['Liability Protection', 'Basic Theft Protection'],
-      description: 'Essential coverage for peace of mind'
+      features: ['Liability Protection', 'Basic Theft Protection', '24/7 Customer Support'],
+      description: 'Essential coverage for peace of mind',
+      popular: false
     },
     {
       name: 'Premium Coverage',
       price: '$25/day',
-      features: ['Full Collision Coverage', 'Theft Protection', 'Roadside Assistance'],
-      description: 'Comprehensive protection'
+      features: ['Full Collision Coverage', 'Theft Protection', 'Roadside Assistance', 'Zero Deductible'],
+      description: 'Comprehensive protection',
+      popular: true
     },
     {
       name: 'Platinum Coverage',
       price: '$35/day',
-      features: ['Zero Deductible', 'Personal Accident Insurance', '24/7 Concierge'],
-      description: 'Ultimate peace of mind'
+      features: ['Zero Deductible', 'Personal Accident Insurance', '24/7 Concierge', 'Trip Interruption'],
+      description: 'Ultimate peace of mind',
+      popular: false
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-orange-600 to-purple-800 text-white py-20">
-        <div className="absolute inset-0 bg-black opacity-40"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30">
+      {/* Enhanced Hero Section with your gradient */}
+      <section   className="relative text-white py-24 overflow-hidden bg-cover bg-center" 
+  style={{ backgroundImage: "url('/cars1.png')" }}>
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3"></div>
+        
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">AutoRentPro Car Rental Services</h1>
-            <p className="text-xl mb-8 opacity-90">
-              Discover the perfect vehicle for your journey. From economy to luxury, 
-              we have the right car for every adventure. Serving customers since 2010.
-            </p>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              
+              <h1 className="text-6xl font-bold mb-6 leading-tight">
+                Premium Car Rental
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-yellow-400">Experience</span>
+              </h1>
+              <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto leading-relaxed">
+                Discover the perfect vehicle for your journey. From economy to luxury, 
+                we have the right car for every adventure.
+              </p>
+            </div>
             
             {/* Enhanced Booking Form */}
-            <div className="bg-white rounded-2xl p-8 shadow-2xl">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2 text-left">
+            <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-white text-sm font-semibold mb-3 flex items-center gap-2">
+                    <IoLocationSharp className="text-orange-300" />
                     Pick-up Location
                   </label>
                   <select
                     value={pickupLocation}
                     onChange={(e) => setPickupLocation(e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700"
+                    className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-white placeholder-white/70"
                   >
-                    <option value="">Select Location</option>
+                    <option value="" className="text-gray-800">Select Location</option>
                     {locations.map(location => (
-                      <option key={location.id} value={location.name}>
+                      <option key={location.id} value={location.name} className="text-gray-800">
                         {location.name}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2 text-left">
-                    Pick-up Date
-                  </label>
+                  <label className="block text-white text-sm font-semibold mb-3">Pick-up Date</label>
                   <input
                     type="date"
                     value={pickupDate}
                     onChange={(e) => setPickupDate(e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700"
+                    className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2 text-left">
-                    Return Date
-                  </label>
+                  <label className="block text-white text-sm font-semibold mb-3">Return Date</label>
                   <input
                     type="date"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700"
+                    className="w-full px-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-white"
                   />
                 </div>
                 <div className="flex items-end">
-                  <button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105">
+                  <button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                    <FaCar className="text-lg" />
                     Check Availability
                   </button>
                 </div>
               </div>
               
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-200">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">5,000+</div>
-                  <div className="text-sm text-gray-600">Happy Customers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">50+</div>
-                  <div className="text-sm text-gray-600">Vehicles</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">15+</div>
-                  <div className="text-sm text-gray-600">Locations</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">24/7</div>
-                  <div className="text-sm text-gray-600">Support</div>
-                </div>
+              {/* Enhanced Quick Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pt-8 border-t border-white/20">
+                {[
+                  { number: '5,000+', label: 'Happy Customers' },
+                  { number: '50+', label: 'Vehicles' },
+                  { number: '15+', label: 'Locations' },
+                  { number: '24/7', label: 'Support' }
+                ].map((stat, index) => (
+                  <div key={index} className="text-center group">
+                    <div className="text-3xl font-bold text-orange-300 mb-2 group-hover:scale-110 transition-transform duration-300">
+                      {stat.number}
+                    </div>
+                    <div className="text-white/80 text-sm font-medium">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
+      {/* Enhanced Features Section */}
+      <section className="py-20 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-gray-800 to-orange-600 bg-clip-text text-transparent mb-4">
               Why Choose AutoRentPro?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -221,42 +222,78 @@ const CarHireServices = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {serviceFeatures.map((feature, index) => (
-              <div key={index} className="text-center p-8 rounded-2xl hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-200">
-                <div className="flex justify-center mb-4">
+              <div 
+                key={index} 
+                className="group p-8 rounded-3xl bg-white/80 backdrop-blur-sm border border-gray-100 hover:border-orange-200 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+              >
+                <div className="flex justify-center mb-6 transform group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center group-hover:text-orange-600 transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed text-center">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-     
-
-      {/* Insurance Section */}
-      <section className="py-16 bg-white">
+      {/* Enhanced Insurance Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-orange-50/50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">Insurance Options</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-gray-800 to-orange-600 bg-clip-text text-transparent mb-4">
+              Insurance Options
+            </h2>
             <p className="text-xl text-gray-600">Choose the protection that fits your needs</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {insuranceOptions.map((insurance, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-8 text-center hover:shadow-lg transition duration-300 border-2 border-transparent hover:border-orange-200">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">{insurance.name}</h3>
-                <div className="text-3xl font-bold text-orange-600 mb-4">{insurance.price}</div>
-                <p className="text-gray-600 mb-6">{insurance.description}</p>
-                <ul className="space-y-3 mb-6">
+              <div 
+                key={index} 
+                className={`relative rounded-3xl p-8 backdrop-blur-sm border-2 transition-all duration-500 hover:-translate-y-4 ${
+                  insurance.popular 
+                    ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-2xl scale-105 border-orange-500' 
+                    : 'bg-white/80 border-gray-200 hover:border-orange-300 shadow-lg hover:shadow-xl'
+                }`}
+              >
+                {insurance.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-yellow-400 text-gray-900 px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                      MOST POPULAR
+                    </span>
+                  </div>
+                )}
+                
+                <h3 className={`text-2xl font-bold mb-2 ${insurance.popular ? 'text-white' : 'text-gray-800'}`}>
+                  {insurance.name}
+                </h3>
+                <div className={`text-4xl font-bold mb-4 ${insurance.popular ? 'text-yellow-400' : 'text-orange-600'}`}>
+                  {insurance.price}
+                </div>
+                <p className={`mb-6 ${insurance.popular ? 'text-orange-100' : 'text-gray-600'}`}>
+                  {insurance.description}
+                </p>
+                <ul className="space-y-3 mb-8">
                   {insurance.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-2 text-gray-700">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <li key={featureIndex} className={`flex items-center gap-3 ${
+                      insurance.popular ? 'text-white' : 'text-gray-700'
+                    }`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                        insurance.popular ? 'bg-orange-400' : 'bg-orange-100'
+                      }`}>
+                        <FaCheck className={`text-xs ${insurance.popular ? 'text-white' : 'text-orange-600'}`} />
+                      </div>
                       {feature}
                     </li>
                   ))}
                 </ul>
-                <button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg transition duration-300">
+                <button className={`w-full py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 ${
+                  insurance.popular 
+                    ? 'bg-white text-orange-600 hover:bg-gray-100 shadow-lg' 
+                    : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg'
+                }`}>
                   Select Plan
                 </button>
               </div>
@@ -265,86 +302,135 @@ const CarHireServices = () => {
         </div>
       </section>
 
-      {/* Locations Section */}
-      <section className="py-16 bg-gray-50">
+      {/* Enhanced Locations Section */}
+      <section className="py-20 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Locations</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold bg-orange-600 bg-clip-text text-transparent mb-4">
+              Our Locations
+            </h2>
             <p className="text-xl text-gray-600">Convenient pickup and drop-off points</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {locations.map(location => (
-              <div key={location.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <FaMapMarkerAlt className="text-orange-600 text-xl" />
-                  <h3 className="text-lg font-semibold text-gray-800">{location.name}</h3>
+              <div 
+                key={location.id} 
+                className="group bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl border border-gray-100 hover:border-orange-300 transition-all duration-500 hover:-translate-y-2"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <FaMapMarkerAlt className="text-white text-lg" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 group-hover:text-orange-600 transition-colors duration-300">
+                    {location.name}
+                  </h3>
                 </div>
-                <p className="text-gray-600 mb-4">{location.address}</p>
-                <div className="flex items-center gap-2 text-gray-600 mb-2">
-                  <FaPhone className="text-orange-500" />
-                  <span>{location.phone}</span>
+                <p className="text-gray-600 mb-6 leading-relaxed">{location.address}</p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <FaPhone className="text-orange-600 text-sm" />
+                    </div>
+                    <span className="font-medium">{location.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <FaClock className="text-orange-600 text-sm" />
+                    </div>
+                    <span className="font-medium">{location.hours}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FaClock className="text-orange-500" />
-                  <span>{location.hours}</span>
+                <button className="w-full mt-6 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-800 font-semibold py-3 rounded-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
+                  Get Directions
+                  <FaArrowRight className="text-sm" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+
+      {/* Enhanced How It Works Section */}
+      <section className="py-20 bg-gradient-to-br from-orange-50 to-orange-100/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-gray-800 to-orange-600 bg-clip-text text-transparent mb-4">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-600">Rent a car in three simple steps</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+            {[
+              {
+                step: 1,
+                title: 'Choose Your Car',
+                description: 'Select from our wide range of vehicles that suit your needs and budget. Filter by type, price, and features.',
+                icon: '🚗'
+              },
+              {
+                step: 2,
+                title: 'Book Online',
+                description: 'Complete your reservation with our secure online booking system. Add insurance and additional services.',
+                icon: '📱'
+              },
+              {
+                step: 3,
+                title: 'Pick Up & Drive',
+                description: 'Collect your vehicle from our convenient locations with all paperwork ready. Hit the road in minutes.',
+                icon: '🎯'
+              }
+            ].map((step, index) => (
+              <div key={index} className="text-center group relative">
+                <div className="relative mb-8">
+                  <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl flex items-center justify-center text-white font-bold text-2xl mx-auto shadow-2xl shadow-orange-500/25 group-hover:scale-110 transition-all duration-500">
+                    {step.icon}
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-orange-600 font-bold border-2 border-orange-500">
+                    {step.step}
+                  </div>
                 </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 group-hover:text-orange-600 transition-colors duration-300">
+                  {step.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">Rent a car in three simple steps</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 group-hover:scale-110 transition duration-300">
-                1
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Choose Your Car</h3>
-              <p className="text-gray-600">Select from our wide range of vehicles that suit your needs and budget. Filter by type, price, and features.</p>
+      {/* Enhanced CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-orange-600 to-purple-800 text-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-black/20"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-48 translate-x-48"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-32 translate-y-32"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-5xl font-bold mb-6">
+              Ready to Hit the Road?
+            </h2>
+            <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90 leading-relaxed">
+              Book your perfect rental car today and enjoy a seamless experience from start to finish. 
+              Join 5,000+ satisfied customers who trust AutoRentPro.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link href={"/vehicles"} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl flex items-center gap-3">
+                <FaCar className="text-lg" />
+                Rent Now
+                <FaArrowRight className="text-sm" />
+              </Link>
+              <Link href={"/contact"} className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+                Contact Us
+              </Link>
             </div>
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 group-hover:scale-110 transition duration-300">
-                2
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Book Online</h3>
-              <p className="text-gray-600">Complete your reservation with our secure online booking system. Add insurance and additional services.</p>
+            <div className="mt-8 text-white/80">
+              <p className="flex items-center justify-center gap-2 text-lg">
+                <FaPhone className="text-orange-300" />
+                Call us at <strong className="text-white ml-1">+(254) 743 861 565</strong> for immediate assistance
+              </p>
             </div>
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 group-hover:scale-110 transition duration-300">
-                3
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">Pick Up & Drive</h3>
-              <p className="text-gray-600">Collect your vehicle from our convenient locations with all paperwork ready. Hit the road in minutes.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-orange-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Hit the Road?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Book your perfect rental car today and enjoy a seamless experience from start to finish. 
-            Join 5,000+ satisfied customers who trust AutoRentPro.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-orange-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
-              Book Now
-            </button>
-            <button className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
-              Contact Us
-            </button>
-          </div>
-          <div className="mt-8 text-orange-100">
-            <p>📞 Call us at <strong>+1 (555) 123-4567</strong> for immediate assistance</p>
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import Profile from "@/app/features/Profile/Profile";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -8,6 +9,7 @@ const Navbar = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [openProfile,setOpenProfile] = useState(false)
 
   const handleSignOut = async () => {
     try {
@@ -42,6 +44,17 @@ const Navbar = () => {
     } catch (error) {
       console.log("Error during fetching user info:", error);
     }
+  };
+  const handleProfile = async () => {
+    try {
+      setOpenProfile(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+   const closeProfile = () => {
+    setOpenProfile(false);
   };
 
   useEffect(() => {
@@ -148,9 +161,13 @@ const Navbar = () => {
                     <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
                   <div className="p-2">
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
+                    <button   onClick={() => {
+                        handleProfile();
+                        setMenuOpen(false);
+                      }} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
                       My Profile
                     </button>
+                    
                     <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
                       Settings
                     </button>
@@ -181,7 +198,22 @@ const Navbar = () => {
               </Link>
             </div>
           )}
+           {/* Profile Modal */}
+      {openProfile && (
+        <div 
+          className="profile-modal-overlay h-screen  fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={closeProfile}
+        >
+          <div 
+            className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Profile openProfile={openProfile} onClose={closeProfile} user={user} />
+          </div>
         </div>
+      )}
+        </div>
+        
 
         {/* Mobile Menu Button */}
         <button

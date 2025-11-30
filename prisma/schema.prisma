@@ -33,6 +33,10 @@ model User {
   bookings    Booking[]
   userProfile UserProfile?
   payments    Payment[]
+
+ // ADD the correct relation to ContactMessage
+  messages       ContactMessage[]
+
   
   @@map("users")
 }
@@ -176,4 +180,19 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   CANCELLED
+}
+
+model ContactMessage {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String
+  phone       String
+  subject     String
+  message     String
+  rentalType  String
+  createdAt   DateTime @default(now())
+
+  // Optional user link (message can be from logged-in OR guest)
+  userId      Int?
+  user        User?     @relation(fields: [userId], references: [id])
 }
