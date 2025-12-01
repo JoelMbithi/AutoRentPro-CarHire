@@ -1,6 +1,7 @@
 "use client";
 
 import Profile from "@/app/features/Profile/Profile";
+import Setting from "@/app/features/settings/Setting";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -10,6 +11,7 @@ const Navbar = () => {
   const [user, setUser] = useState<any>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [openProfile,setOpenProfile] = useState(false)
+  const [openSetting,setOpenSetting] = useState(false)
 
   const handleSignOut = async () => {
     try {
@@ -33,6 +35,7 @@ const Navbar = () => {
         credentials: 'include',
       });
       const data = await res.json();
+      console.log(data)
 
       if (data.authenticated) {
         setIsSignedIn(true);
@@ -57,8 +60,20 @@ const Navbar = () => {
     setOpenProfile(false);
   };
 
+  const handleSetting = async () => {
+    try {
+      setOpenSetting(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+  const closeSetting = () => {
+    setOpenSetting(false)
+  }
   useEffect(() => {
     handleSignIn();
+    
   }, []);
 
   // Close dropdown when clicking outside
@@ -168,7 +183,11 @@ const Navbar = () => {
                       My Profile
                     </button>
                     
-                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
+                    <button  onClick={() =>{
+                       handleSetting()
+                        setMenuOpen(false);
+                       }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
                       Settings
                     </button>
                     <button 
@@ -208,7 +227,22 @@ const Navbar = () => {
             className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <Profile openProfile={openProfile} onClose={closeProfile} user={user} />
+            <Profile  openProfile={openProfile} onClose={closeProfile} user={user} />
+          </div>
+        </div>
+      )}
+
+      {/* Setting */}
+      {openSetting && (
+         <div 
+          className="profile-modal-overlay h-screen  fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={closeSetting}
+        >
+          <div 
+            className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Setting  isOpen={openSetting} onClose={closeSetting} user={user} />
           </div>
         </div>
       )}
@@ -255,10 +289,13 @@ const Navbar = () => {
                     <p className="font-semibold text-gray-800">{user?.firstName} {user?.lastName}</p>
                     <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
-                  <button className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <button onClick={() => {handleProfile()}} className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     My Profile
                   </button>
-                  <button className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <button 
+                  onClick={() =>{ handleSetting()}}
+                   
+                  className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     Settings
                   </button>
                   <button 
