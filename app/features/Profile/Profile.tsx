@@ -17,19 +17,17 @@ interface UserData {
   isVerified: boolean;
   role: string;
   createdAt: string;
-  userProfile?: {
-    avatar: string;
-    preferences: any;
-  };
+  updatedAt?: string;
 }
 
 interface ProfileProps {
   openProfile: boolean;
   onClose: () => void;
   user: UserData | null;
+  onProfileUpdate?: (updatedUser: UserData) => void; // Add this callback
 }
 
-const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
+const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user, onProfileUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -43,6 +41,8 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
     country: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Initialize form data when user data changes
   useEffect(() => {
@@ -71,25 +71,40 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
 
   const handleSave = async () => {
     setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
     try {
-      const response = await fetch('/api/user/profile', {
+      const response = await fetch('/features/Profile/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-        credentials: 'include'
+        credentials: 'include' // Important for sending cookies
       });
 
-      if (response.ok) {
-        setIsEditing(false);
-        // You might want to refresh user data here
-        console.log('Profile updated successfully');
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSuccess('Profile updated successfully!');
+        
+        // Update parent component with new user data
+        if (onProfileUpdate && data.user) {
+          onProfileUpdate(data.user);
+        }
+        
+        // Reset editing mode after a delay
+        setTimeout(() => {
+          setIsEditing(false);
+          setSuccess(null);
+        }, 2000);
       } else {
-        console.error('Failed to update profile');
+        setError(data.error || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+      setError('An error occurred while updating profile');
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +112,9 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
 
   const handleCancel = () => {
     setIsEditing(false);
+    setError(null);
+    setSuccess(null);
+    
     // Reset form data to original user data
     if (user) {
       setFormData({
@@ -127,15 +145,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold backdrop-blur-sm border border-white/30">
-                {user.userProfile?.avatar ? (
-                  <img 
-                    src={user.userProfile.avatar} 
-                    alt="Profile" 
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  getUserInitials()
-                )}
+                {getUserInitials()}
               </div>
               <button className="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center border-2 border-white">
                 <Camera className="w-4 h-4 text-white" />
@@ -203,6 +213,18 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
 
       {/* Content */}
       <div className="p-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+        {/* Success/Error Messages */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+            {success}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Personal Information */}
           <div className="bg-gray-50 rounded-xl p-6">
@@ -213,13 +235,14 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
                   {isEditing ? (
                     <input
                       type="text"
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   ) : (
@@ -227,13 +250,14 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
                   {isEditing ? (
                     <input
                       type="text"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   ) : (
@@ -245,7 +269,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  Email Address
+                  Email Address *
                 </label>
                 {isEditing ? (
                   <input
@@ -253,6 +277,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 ) : (
@@ -271,10 +296,11 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
+                    placeholder="+1234567890"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 ) : (
-                  <p className="text-gray-900 font-medium">{user.phone}</p>
+                  <p className="text-gray-900 font-medium">{user.phone || 'Not set'}</p>
                 )}
               </div>
 
@@ -316,10 +342,11 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                     name="drivingLicense"
                     value={formData.drivingLicense}
                     onChange={handleInputChange}
+                    placeholder="e.g., ABC123456"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 ) : (
-                  <p className="text-gray-900 font-medium">{user.drivingLicense}</p>
+                  <p className="text-gray-900 font-medium">{user.drivingLicense || 'Not set'}</p>
                 )}
               </div>
             </div>
@@ -339,6 +366,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
+                      placeholder="Street address"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   ) : (
@@ -354,6 +382,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                         name="city"
                         value={formData.city}
                         onChange={handleInputChange}
+                        placeholder="City"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                     ) : (
@@ -368,6 +397,7 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
                         name="country"
                         value={formData.country}
                         onChange={handleInputChange}
+                        placeholder="Country"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                     ) : (
@@ -388,6 +418,12 @@ const Profile: React.FC<ProfileProps> = ({ openProfile, onClose, user }) => {
               <p className="text-gray-600">Member Since</p>
               <p className="font-medium text-gray-900">
                 {new Date(user.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-600">Last Updated</p>
+              <p className="font-medium text-gray-900">
+                {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'Never'}
               </p>
             </div>
             <div>

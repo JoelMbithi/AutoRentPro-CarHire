@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user with proper selection
+    // Find user with ALL profile data
     const user = await prisma.user.findUnique({ 
       where: { email },
       select: {
@@ -23,8 +23,17 @@ export async function POST(request: NextRequest) {
         firstName: true,
         lastName: true,
         email: true,
+        phone: true,
         password: true,
         role: true,
+        drivingLicense: true,
+        dateOfBirth: true,
+        address: true,
+        city: true,
+        country: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
       }
     });
 
@@ -45,9 +54,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create token
+    // Create token with user data
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: "6d" }
     );
@@ -60,7 +75,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Sign in successful",
-        user: userWithoutPassword, // This now has firstName and lastName
+        user: userWithoutPassword,
       },
       { status: 200 }
     );
@@ -70,7 +85,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 6 * 24 * 60 * 60, // 6 days
+      maxAge: 6 * 24 * 60 * 60,
       path: "/",
     });
 
@@ -84,6 +99,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Auth check endpoint
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;
@@ -101,7 +117,9 @@ export async function GET(request: NextRequest) {
         firstName: true,
         lastName: true,
         email: true,
+        phone: true,
         role: true,
+        // Don't select password here
       }
     });
 
@@ -119,5 +137,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ authenticated: false });
   }
 }
-
-/* Logout */

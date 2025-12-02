@@ -10,8 +10,8 @@ const Navbar = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [openProfile,setOpenProfile] = useState(false)
-  const [openSetting,setOpenSetting] = useState(false)
+  const [openProfile, setOpenProfile] = useState(false);
+  const [openSetting, setOpenSetting] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -28,14 +28,37 @@ const Navbar = () => {
     }
   };
 
-  const handleSignIn = async () => {
+  // Update this function to fetch profile data
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetch('/features/Profile/api/profile', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      
+      if (data.success && data.user) {
+        setIsSignedIn(true);
+        setUser(data.user);
+      } else {
+        // If profile endpoint fails, try auth check
+        await handleAuthCheck();
+      }
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+      // Fallback to auth check
+      await handleAuthCheck();
+    }
+  };
+
+  // Keep auth check as backup
+  const handleAuthCheck = async () => {
     try {
       const res = await fetch('/features/auth/api/signin', {
         method: 'GET',
         credentials: 'include',
       });
       const data = await res.json();
-      console.log(data)
 
       if (data.authenticated) {
         setIsSignedIn(true);
@@ -45,35 +68,38 @@ const Navbar = () => {
         setUser(null);
       }
     } catch (error) {
-      console.log("Error during fetching user info:", error);
+      console.log("Error during auth check:", error);
+      setIsSignedIn(false);
+      setUser(null);
     }
   };
-  const handleProfile = async () => {
-    try {
-      setOpenProfile(true)
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
-   const closeProfile = () => {
+  const handleProfile = () => {
+    setOpenProfile(true);
+    setProfileDropdownOpen(false);
+  };
+
+  const closeProfile = () => {
     setOpenProfile(false);
   };
 
-  const handleSetting = async () => {
-    try {
-      setOpenSetting(true)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const handleSetting = () => {
+    setOpenSetting(true);
+    setProfileDropdownOpen(false);
+  };
   
   const closeSetting = () => {
-    setOpenSetting(false)
-  }
+    setOpenSetting(false);
+  };
+
+  // Handle profile update from Profile component
+  const handleProfileUpdate = (updatedUser: any) => {
+    setUser(updatedUser);
+    // You might want to update localStorage or context here
+  };
+
   useEffect(() => {
-    handleSignIn();
-    
+    fetchUserProfile();
   }, []);
 
   // Close dropdown when clicking outside
@@ -168,7 +194,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Dropdown - Always visible when open */}
+              {/* Dropdown */}
               {profileDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border profile-dropdown-content z-50">
                   <div className="p-3 border-b">
@@ -176,18 +202,17 @@ const Navbar = () => {
                     <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
                   <div className="p-2">
-                    <button   onClick={() => {
-                        handleProfile();
-                        setMenuOpen(false);
-                      }} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
+                    <button 
+                      onClick={handleProfile}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors"
+                    >
                       My Profile
                     </button>
                     
-                    <button  onClick={() =>{
-                       handleSetting()
-                        setMenuOpen(false);
-                       }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors">
+                    <button 
+                      onClick={handleSetting}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors"
+                    >
                       Settings
                     </button>
                     <button 
@@ -217,38 +242,8 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-           {/* Profile Modal */}
-      {openProfile && (
-        <div 
-          className="profile-modal-overlay h-screen  fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={closeProfile}
-        >
-          <div 
-            className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Profile  openProfile={openProfile} onClose={closeProfile} user={user} />
-          </div>
-        </div>
-      )}
-
-      {/* Setting */}
-      {openSetting && (
-         <div 
-          className="profile-modal-overlay h-screen  fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={closeSetting}
-        >
-          <div 
-            className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Setting  isOpen={openSetting} onClose={closeSetting} user={user} />
-          </div>
-        </div>
-      )}
         </div>
         
-
         {/* Mobile Menu Button */}
         <button
           className="md:hidden flex flex-col gap-1.5 w-6 h-6"
@@ -262,7 +257,7 @@ const Navbar = () => {
 
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md border-t pb-4 animate-slide-down">
+        <div className="md:hidden  bg-white shadow-md border-t pb-4 animate-slide-down">
           <div className="flex flex-col gap-4 px-6 pt-4">
             {[
               { name: "Home", href: "/" },
@@ -289,13 +284,16 @@ const Navbar = () => {
                     <p className="font-semibold text-gray-800">{user?.firstName} {user?.lastName}</p>
                     <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
-                  <button onClick={() => {handleProfile()}} className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <button 
+                    onClick={handleProfile} 
+                    className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
                     My Profile
                   </button>
                   <button 
-                  onClick={() =>{ handleSetting()}}
-                   
-                  className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    onClick={handleSetting}
+                    className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
                     Settings
                   </button>
                   <button 
@@ -327,6 +325,45 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {openProfile && (
+        <div 
+          className="fixed inset-0 z-[100] h-screen  flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={closeProfile}
+        >
+          <div 
+            className="relative bg-white mt h-screen rounded-2xl shadow-2xl  w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Profile 
+              openProfile={openProfile} 
+              onClose={closeProfile} 
+              user={user}
+              onProfileUpdate={handleProfileUpdate}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Setting Modal */}
+      {openSetting && (
+         <div 
+          className="fixed inset-0 z-[100] h-screen flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={closeSetting}
+        >
+          <div 
+            className="relative bg-white h-screen rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Setting  
+              isOpen={openSetting} 
+              onClose={closeSetting} 
+              user={user} 
+            />
           </div>
         </div>
       )}
