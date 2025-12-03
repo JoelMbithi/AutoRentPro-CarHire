@@ -1,4 +1,4 @@
-// app/contact/components/CarHireContact.tsx
+
 'use client';
 
 import Link from 'next/link';
@@ -183,7 +183,7 @@ const CarHireContact = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
     <section className="relative text-white py-24 overflow-hidden bg-cover bg-center" 
-  style={{ backgroundImage: "url('/cars1.png')" }}>
+  style={{ backgroundImage: "url('/Contact.png')" }}>
   {/* Enhanced Background Elements */}
   <div className="absolute inset-0 bg-black/30"></div>
   
