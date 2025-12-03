@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Car Hire Platform",
-  description: "Premium car rentals made easy",
+  description: "  AutoRent Pro car rentals made easy",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

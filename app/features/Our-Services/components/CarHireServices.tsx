@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { FaStar, FaShieldAlt, FaMapMarkerAlt, FaPhone, FaClock, FaCar, FaGasPump, FaUserFriends, FaCog, FaCreditCard, FaCheck, FaPlay, FaArrowRight } from 'react-icons/fa';
 import { IoSpeedometer, IoLocationSharp, IoHeart, IoShieldCheckmark } from 'react-icons/io5';
 import Link from 'next/link';
@@ -21,11 +21,32 @@ interface Location {
 }
 
 const CarHireServices = () => {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [pickupDate, setPickupDate] = useState<string>('');
   const [returnDate, setReturnDate] = useState<string>('');
   const [pickupLocation, setPickupLocation] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('cars');
+
+  const handleCheckAvailability = () => {
+    // Create search parameters object
+    const searchParams = new URLSearchParams();
+    
+    if (pickupDate) searchParams.append('pickupDate', pickupDate);
+    if (returnDate) searchParams.append('returnDate', returnDate);
+    if (pickupLocation) searchParams.append('location', pickupLocation);
+    if (selectedCategory && selectedCategory !== 'all') {
+      searchParams.append('category', selectedCategory);
+    }
+    
+    // Navigate to fleet page with search parameters
+    router.push(`/vehicles?${searchParams.toString()}`);
+  };
+
+  const handleRentNow = () => {
+    // Navigate to vehicles page without filters
+    router.push('/vehicles');
+  };
 
   // Service features with your orange color scheme
   const serviceFeatures: ServiceFeature[] = [
@@ -121,8 +142,8 @@ const CarHireServices = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30">
       {/* Enhanced Hero Section with your gradient */}
-      <section   className="relative text-white py-24 overflow-hidden bg-cover bg-center" 
-  style={{ backgroundImage: "url('/cars1.png')" }}>
+      <section className="relative text-white py-24 overflow-hidden bg-cover bg-center" 
+        style={{ backgroundImage: "url('/Service.png')" }}>
         {/* Animated Background Elements */}
         <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3"></div>
@@ -130,9 +151,8 @@ const CarHireServices = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              
               <h1 className="text-6xl font-bold mb-6 leading-tight">
-                Premium Car Rental
+                AutoRent Pro Car Rental
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-yellow-400">Experience</span>
               </h1>
               <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto leading-relaxed">
@@ -181,10 +201,42 @@ const CarHireServices = () => {
                   />
                 </div>
                 <div className="flex items-end">
-                  <button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                  <button 
+                    onClick={handleCheckAvailability}
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  >
                     <FaCar className="text-lg" />
                     Check Availability
                   </button>
+                </div>
+              </div>
+              
+              {/* Category Filter */}
+              <div className="mt-6">
+                <label className="block text-white text-sm font-semibold mb-3">Car Category</label>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { value: 'all', label: 'All Cars' },
+                    { value: 'ECONOMY', label: 'Economy' },
+                    { value: 'SUV', label: 'SUV' },
+                    { value: 'LUXURY', label: 'Luxury' },
+                    { value: 'SPORTS', label: 'Sports' },
+                    { value: 'COMPACT', label: 'Compact' },
+                    { value: 'MIDSIZE', label: 'Midsize' },
+                    { value: 'FULLSIZE', label: 'Fullsize' }
+                  ].map((category) => (
+                    <button
+                      key={category.value}
+                      onClick={() => setSelectedCategory(category.value)}
+                      className={`px-4 py-2 rounded-xl transition-all duration-300 ${
+                        selectedCategory === category.value
+                          ? 'bg-orange-500 text-white shadow-lg'
+                          : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      {category.label}
+                    </button>
+                  ))}
                 </div>
               </div>
               
@@ -416,12 +468,18 @@ const CarHireServices = () => {
               Join 5,000+ satisfied customers who trust AutoRentPro.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link href={"/vehicles"} className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl flex items-center gap-3">
+              <button 
+                onClick={handleRentNow}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl flex items-center gap-3"
+              >
                 <FaCar className="text-lg" />
                 Rent Now
                 <FaArrowRight className="text-sm" />
-              </Link>
-              <Link href={"/contact"} className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+              </button>
+              <Link 
+                href="/contact" 
+                className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-bold py-4 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+              >
                 Contact Us
               </Link>
             </div>

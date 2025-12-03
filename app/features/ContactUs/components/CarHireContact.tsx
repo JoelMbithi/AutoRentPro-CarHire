@@ -212,7 +212,7 @@ const CarHireContact = () => {
       {/* Subheading with Better Hierarchy */}
       <div className="space-y-4 mb-8 max-w-3xl mx-auto">
         <p className="text-2xl lg:text-3xl font-light opacity-95 leading-relaxed">
-          Premium Car Rental Solutions Tailored to Your Journey
+            AutoRent Pro Car Rental Solutions Tailored to Your Journey
         </p>
         <p className="text-lg lg:text-xl opacity-80 font-normal leading-relaxed">
           Expert support for reservations, fleet inquiries, and personalized travel planning

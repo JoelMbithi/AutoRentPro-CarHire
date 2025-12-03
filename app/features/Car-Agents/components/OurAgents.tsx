@@ -45,7 +45,7 @@ const agents = [
     phone: '+254 701 234 567',
     email: 'kevin@autorentpro.com',
     location: 'Kisumu, Kenya',
-    bio: 'Expert in vehicle inspection, maintenance, and premium car rental advisory.',
+    bio: 'Expert in vehicle inspection, maintenance, and   AutoRent Pro car rental advisory.',
     specialties: ['4WD & Safari Vehicles', 'Fleet Management', 'Vehicle Inspection'],
     languages: ['English', 'Swahili', 'Luo'],
     responseTime: 'Under 20 minutes',

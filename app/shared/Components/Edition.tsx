@@ -36,7 +36,7 @@ const Edition = () => {
         {/* Main Hero Section */}
         <div className="text-center z-10 mb-20 transition-all duration-700 hover:scale-105">
           <h1 className="text-4xl sm:text-6xl font-bold drop-shadow-lg text-center mb-6 animate-fade-in-up">
-            Premium Car Rental Experience
+              AutoRent Pro Car Rental Experience
           </h1>
           <p className="text-lg sm:text-xl mt-4 max-w-2xl text-center drop-shadow-md mx-auto opacity-0 animate-fade-in-up animation-delay-300">
             Explore our luxury, comfort and performance cars — ready for your next journey.
@@ -141,7 +141,7 @@ const Edition = () => {
 
   <div className="text-left space-y-6">
     <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md">
-      With <span className="text-orange-300 font-semibold">over a decade of excellence</span> in premium car rentals, we've perfected the art of luxury mobility. Our commitment goes beyond just providing vehicles - we deliver <span className="text-orange-300 font-semibold">unforgettable experiences</span>.
+      With <span className="text-orange-300 font-semibold">over a decade of excellence</span> in   AutoRent Pro car rentals, we've perfected the art of luxury mobility. Our commitment goes beyond just providing vehicles - we deliver <span className="text-orange-300 font-semibold">unforgettable experiences</span>.
     </p>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">

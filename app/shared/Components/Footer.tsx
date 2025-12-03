@@ -12,7 +12,7 @@ const Footer = () => {
               AutoRentPro
             </h1>
             <p className='text-gray-600 leading-relaxed max-w-md'>
-              Experience luxury redefined with our premium car rental service. 
+              Experience luxury redefined with our   AutoRent Pro car rental service. 
               Where exceptional vehicles meet unparalleled service for your journey.
             </p>
             <div className='flex gap-4'>

@@ -1,15 +1,32 @@
-import React from 'react'
+"use client";
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const FleetBanner = () => {
-  return (
-   <div
-  className="min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] 
-  w-full flex flex-col lg:flex-row items-center justify-between 
-  px-4 sm:px-8 lg:px-20 py-8 
-  bg-cover bg-center bg-no-repeat relative"
-  style={{ backgroundImage: "url('/display1.png')" }}
->
+  const router = useRouter();
+  const [carModel, setCarModel] = useState('');
+  const [category, setCategory] = useState('');
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const searchParams = new URLSearchParams();
+    
+    if (carModel) searchParams.append('search', carModel);
+    if (category) searchParams.append('category', category.toUpperCase());
+    
+    router.push(`/vehicles?${searchParams.toString()}`);
+  };
+
+  return (
+    <div
+      className="min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] 
+      w-full flex flex-col lg:flex-row items-center justify-between 
+      px-4 sm:px-8 lg:px-20 py-8 
+      bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: "url('/display1.png')" }}
+    >
       {/* Background Overlay */}
       <div className='absolute inset-0 bg-black/20 z-0'></div>
       
@@ -34,13 +51,15 @@ const FleetBanner = () => {
           </h1>
         </div>
 
-        <form className='space-y-4'>
+        <form onSubmit={handleSearch} className='space-y-4'>
           {/* Car Model */}
           <div className='space-y-2'>
             <h1 className='text-black font-semibold text-sm'>Car Model</h1>
             <input 
               type="text" 
               placeholder='Search a car model' 
+              value={carModel}
+              onChange={(e) => setCarModel(e.target.value)}
               className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm'
             />
           </div>
@@ -48,12 +67,20 @@ const FleetBanner = () => {
           {/* Category */}
           <div className='space-y-2'>
             <h1 className='text-black font-semibold text-sm'>Category</h1>
-            <select className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm bg-white'>
+            <select 
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm bg-white'
+            >
               <option value="">Select category</option>
               <option value="luxury">Luxury</option>
               <option value="suv">SUV</option>
               <option value="sports">Sports</option>
               <option value="electric">Electric</option>
+              <option value="economy">Economy</option>
+              <option value="compact">Compact</option>
+              <option value="midsize">Midsize</option>
+              <option value="fullsize">Fullsize</option>
             </select>
           </div>
 
@@ -70,4 +97,4 @@ const FleetBanner = () => {
   )
 }
 
-export default FleetBanner
+export default FleetBanner;

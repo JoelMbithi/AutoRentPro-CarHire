@@ -18,7 +18,7 @@ const AboutBanner = () => {
         </h1>
 
         <p className='text-lg sm:text-xl text-gray-200'>
-          Your trusted partner for seamless, affordable, and premium car rentals.  
+          Your trusted partner for seamless, affordable, and   AutoRent Pro car rentals.  
           We provide a wide variety of well-maintained vehicles suited for every occasion.
         </p>
 

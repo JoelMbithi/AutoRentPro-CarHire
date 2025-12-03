@@ -11,4 +11,5 @@ export interface CarProps {
   year: string;
   featured: boolean;
   category: string;
+   location?: string;
 }
