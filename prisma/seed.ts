@@ -7,57 +7,74 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 
+
 const prisma = new PrismaClient({
   adapter,
 });
 
-// Seed data with Prisma typing - corrected enum values
-const carData: Prisma.CarCreateInput[] = [
-  {
-    make: "Land Rover", // Added required field
-    model: "Range Rover Sport", // Added required field
-    year: "2023",
-    price: "22,000",
-    image: "/range.png", // Changed from 'img' to 'image' to match schema
-    fuelType: "DIESEL", // Uppercase to match FuelType enum
-    seats: 5,
-    transmission: "AUTOMATIC", // Changed from 'gear' to 'transmission', uppercase
-    drive: "AWD", // This should match DriveType enum - AWD is valid
-    category: "LUXURY", // Uppercase to match CarCategory enum
-    rating: 4.8,
-    reviews: 92,
-    power: "355 HP",
-    isAvailable: true, // Changed from 'featured' to 'isAvailable'
-    location: "New York", // Added location
-  },
-  {
-    make: "Toyota", // Added required field
-    model: "Corolla", // Added required field
-    year: "2022",
-    price: "15,000",
-    image: "/corolla.png", // Changed from 'img' to 'image' to match schema
-    fuelType: "PETROL", // Uppercase to match FuelType enum
-    seats: 5,
-    transmission: "AUTOMATIC", // Changed from 'gear' to 'transmission', uppercase
-    drive: "FWD", // This should match DriveType enum - FWD is valid
-    category: "ECONOMY", // Uppercase to match CarCategory enum
-    rating: 4.5,
-    reviews: 140,
-    power: "132 HP",
-    isAvailable: true, // Changed from 'featured' to 'isAvailable'
-    location: "Los Angeles", // Added location
-  },
-];
+async function main() {
+  const agents = [
+    {
+      name: ' Kelvin Odhiambo',
+      role: 'Senior Car Hire Agent',
+      rating: 4.9,
+      reviews: 127,
+      image: '/Profiles/Agent1.png',
+      phone: '+254 712 345 678',
+      email: 'kevin@autorentpro.com',
+      location: 'Kisumu, Kenya',
+      bio: 'Over 6 years of experience in vehicle rentals, customer service, and corporate bookings.',
+      specialties: ['Luxury Vehicles', 'Corporate Accounts', 'Long-term Rentals'],
+      languages: ['English', 'Swahili','Luo'],
+      responseTime: 'Under 15 minutes',
+      joined: '2025'
+    },
+    {
+      name: 'Christine Mutheu',
+      role: 'Customer Support Specialist',
+      rating: 4.8,
+      reviews: 89,
+      image: '/Profiles/agent2.jpeg',
+      phone: '+254 743 264 773',
+      email: 'mutheu@autorentpro.com',
+      location: 'Mombasa, Kenya',
+      bio: 'Dedicated to ensuring customer satisfaction with quick and reliable assistance.',
+      specialties: ['Family Vehicles', 'Airport Pickups', 'Tourist Packages'],
+      languages: ['English', 'Swahili', 'French'],
+      responseTime: 'Under 10 minutes',
+      joined: '2025'
+    },
+    {
+      name: 'Joel Mbithi',
+      role: 'Fleet Manager',
+      rating: 5.0,
+      reviews: 156,
+      image: '/Profiles/agent3.png',
+      phone: '+254 743 861 565',
+      email: 'joel@autorentpro.com',
+      location: 'Chuka, Kenya',
+      bio: 'Expert in vehicle inspection, maintenance, and AutoRent Pro car rental advisory.',
+      specialties: ['4WD & Safari Vehicles', 'Fleet Management', 'Vehicle Inspection'],
+      languages: ['English', 'Swahili', 'Kamba'],
+      responseTime: 'Under 20 minutes',
+      joined: '2025'
+    }
+  ];
 
-export async function main() {
-  for (const car of carData) {
-    await prisma.car.create({
-      data: car,
+  for (const agent of agents) {
+    await prisma.agent.create({
+      data: agent
     });
   }
-  console.log("Seed data created!");
+
+  console.log(' Agents seeded successfully!');
 }
 
 main()
-  .catch(console.error)
-  .finally(async () => await prisma.$disconnect());
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 const LandingBanner = () => {
@@ -15,9 +16,9 @@ const LandingBanner = () => {
           <br /> Select from a range of car options and local specials.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <button className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-2 py-4 rounded-lg transition-colors duration-300 shadow-lg">
+          <Link href={"/vehicles"} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-2 py-4 rounded-lg transition-colors duration-300 shadow-lg">
             Find Your Perfect Car
-          </button>
+          </Link>
           <button className="border border-gray-300 hover:border-orange-600 text-gray-700 hover:text-orange-600 font-semibold px-8 py-4 rounded-lg transition-all duration-300">
             Learn More
           </button>

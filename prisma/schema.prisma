@@ -199,3 +199,26 @@ model ContactMessage {
   userId      Int?
   user        User?     @relation(fields: [userId], references: [id])
 }
+
+
+model Agent {
+  id           Int      @id @default(autoincrement())
+  name         String
+  role         String
+  rating       Float
+  reviews      Int
+  image        String
+  phone        String
+  email        String   @unique
+  location     String
+  bio          String
+  specialties  String[] // Use PostgreSQL text[] array
+  languages    String[] // Same
+  responseTime String
+  joined       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("agents")
+}

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import React from "react";
 
 const Edition = () => {
@@ -42,7 +43,7 @@ const Edition = () => {
             Explore our luxury, comfort and performance cars — ready for your next journey.
           </p>
           <button className="mt-8 bg-orange-600 hover:bg-orange-700 px-8 py-3 rounded-lg font-semibold shadow-lg transform hover:scale-110 transition-all duration-300 opacity-0 animate-fade-in-up animation-delay-500">
-            Explore Now
+           <Link href={'/vehicles'}> Explore Now</Link>
           </button>
         </div>
 

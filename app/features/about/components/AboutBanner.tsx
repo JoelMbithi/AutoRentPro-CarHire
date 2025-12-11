@@ -4,7 +4,7 @@ import React from 'react';
 const AboutBanner = () => {
   return (
     <div
-      className='min-h-[60vh] flex flex-col lg:flex-row items-center justify-between px-6 sm:px-10 lg:px-20 py-16 bg-cover bg-center bg-no-repeat relative'
+      className='min-h-[60vh] flex flex-col lg:flex-row items-center justify-between px-6 sm:px-10 lg:px-20 py-28 bg-cover bg-center bg-no-repeat relative'
       style={{ backgroundImage: "url('/dashboard.jpg')" }}
     >
       {/* Background Overlay */}
