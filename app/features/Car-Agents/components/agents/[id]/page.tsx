@@ -30,6 +30,7 @@ const SingleAgentPage = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'services' | 'contact'>('overview');
   const [error, setError] = useState<string | null>(null);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [sending,setSending] = useState(false)
 
   // Sample reviews data (in a real app, this would come from API)
   const reviews: Review[] = [
@@ -72,7 +73,7 @@ const SingleAgentPage = () => {
         
         // Try multiple possible API endpoints
         const endpoints = [
-          `/api/agents/${params.id}`,
+         
           `/features/Car-Agents/api/agents/${params.id}`
         ];
         
@@ -166,6 +167,45 @@ const SingleAgentPage = () => {
     { icon: Globe, title: 'Tour Planning', description: 'Safari and tour coordination' },
     { icon: FileText, title: 'Paperwork Handling', description: 'All documentation handled' },
   ];
+
+  //handle submit Message
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSending(true)
+
+    const formData = {
+      name: (e.currentTarget.elements.namedItem('name') as HTMLInputElement).value,
+    email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
+    phone: (e.currentTarget.elements.namedItem('phone') as HTMLInputElement).value,
+    message: (e.currentTarget.elements.namedItem('message') as HTMLTextAreaElement).value,
+    subject: `Inquiry for ${displayAgent.name}`,
+    rentalType: (e.currentTarget.elements.namedItem('rentalType') as HTMLSelectElement)?.value || 'General',
+    }
+    try {
+      const response = await fetch(`/features/Car-Agents/api/agents/${params.id}/Contact_Agents`,{
+        method:'POST',
+        headers: {
+          'Content-Type':'application/json',
+
+        },
+        body:JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+
+      if(response.ok){
+         alert(' Message sent successfully! The agent will contact you shortly.');
+      setShowContactForm(false);
+      }else {
+      alert(` Error: ${data.error || 'Failed to send message'}`);
+    }
+    } catch (error) {
+       console.error('Error sending message:', error);
+    alert(' Network error. Please try again.');
+    }finally {
+    setSending(false);
+  }
+  }
 
   if (loading) {
     return (
@@ -760,56 +800,111 @@ const SingleAgentPage = () => {
       </footer>
       
       {/* Contact Form Modal */}
-      {showContactForm && (
-        <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Contact {displayAgent.name.split(' ')[0]}</h3>
-                <button
-                  onClick={() => setShowContactForm(false)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  ✕
-                </button>
+   
+    {showContactForm && (
+      <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Contact {displayAgent.name.split(' ')[0]}</h3>
+              <button
+                onClick={() => setShowContactForm(false)}
+                className="text-gray-400 hover:text-gray-500"
+                disabled={sending}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter your name"
+                  disabled={sending}
+                />
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                  <textarea
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="How can we help you?"
-                  ></textarea>
-                </div>
-                
-                <button className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors font-medium">
-                  Send Message
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter your email"
+                  disabled={sending}
+                />
               </div>
-            </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter your phone number"
+                  disabled={sending}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rental Type</label>
+                <select
+                  name="rentalType"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  disabled={sending}
+                >
+                  <option value="General">General Inquiry</option>
+                  <option value="Daily">Daily Rental</option>
+                  <option value="Weekly">Weekly Rental</option>
+                  <option value="Monthly">Monthly Rental</option>
+                  <option value="Safari">Safari Package</option>
+                  <option value="Corporate">Corporate Fleet</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                <textarea
+                  name="message"
+                  rows={4}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Tell us about your vehicle needs..."
+                  disabled={sending}
+                ></textarea>
+              </div>
+              
+              <button
+                type="submit"
+                disabled={sending}
+                className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {sending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </button>
+              
+              <p className="text-xs text-gray-500 text-center">
+                Your message will be sent to {displayAgent.name} and saved in our system.
+              </p>
+            </form>
           </div>
         </div>
-      )}
+      </div>
+    )}
+  
     </div>
   );
 };

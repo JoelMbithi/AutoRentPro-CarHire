@@ -195,10 +195,23 @@ model ContactMessage {
   rentalType  String
   createdAt   DateTime @default(now())
 
-  // Optional user link (message can be from logged-in OR guest)
+  // TEMPORARILY optional
+  agentId     Int?
+  agent       Agent?   @relation(fields: [agentId], references: [id])
+
   userId      Int?
-  user        User?     @relation(fields: [userId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  status      MessageStatus @default(UNREAD)
 }
+
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+}
+
 
 
 model Agent {
@@ -219,6 +232,9 @@ model Agent {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  messages ContactMessage[]
 
   @@map("agents")
 }

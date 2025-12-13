@@ -17,98 +17,67 @@ const stats = [
   { number: '15min', label: 'Avg. Response Time', icon: Award }
 ];
 
-// Fallback agents data
-const fallbackAgents: AgentsProps[] = [
-  {
-    id: 1,
-    name: 'John Mwangi',
-    role: 'Senior Car Hire Agent',
-    rating: 4.9,
-    reviews: 127,
-    image: '/Profiles/agent1.jpg',
-    phone: '+254 712 345 678',
-    email: 'john@autorentpro.com',
-    location: 'Nairobi, Kenya',
-    bio: 'Over 6 years of experience in vehicle rentals, customer service, and corporate bookings.',
-    specialties: ['Luxury Vehicles', 'Corporate Accounts', 'Long-term Rentals'],
-    languages: ['English', 'Swahili'],
-    responseTime: 'Under 15 minutes',
-    joined: '2018'
-  },
-  {
-    id: 2,
-    name: 'Sarah Nduku',
-    role: 'Customer Support Specialist',
-    rating: 4.8,
-    reviews: 89,
-    image: '/Profiles/agent2.jpg',
-    phone: '+254 723 987 654',
-    email: 'sarah@autorentpro.com',
-    location: 'Mombasa, Kenya',
-    bio: 'Dedicated to ensuring customer satisfaction with quick and reliable assistance.',
-    specialties: ['Family Vehicles', 'Airport Pickups', 'Tourist Packages'],
-    languages: ['English', 'Swahili', 'French'],
-    responseTime: 'Under 10 minutes',
-    joined: '2020'
-  },
-  {
-    id: 3,
-    name: 'Kevin Otieno',
-    role: 'Fleet Manager',
-    rating: 5.0,
-    reviews: 156,
-    image: '/Profiles/agent3.jpg',
-    phone: '+254 701 234 567',
-    email: 'kevin@autorentpro.com',
-    location: 'Kisumu, Kenya',
-    bio: 'Expert in vehicle inspection, maintenance, and AutoRent Pro car rental advisory.',
-    specialties: ['4WD & Safari Vehicles', 'Fleet Management', 'Vehicle Inspection'],
-    languages: ['English', 'Swahili', 'Luo'],
-    responseTime: 'Under 20 minutes',
-    joined: '2017'
-  }
-];
-
 const OurAgents = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false); 
-  const [agents, setAgents] = useState<AgentsProps[]>(fallbackAgents);
-  const [filteredAgents, setFilteredAgents] = useState<AgentsProps[]>(fallbackAgents);
+  const [loading, setLoading] = useState(true); 
+  const [agents, setAgents] = useState<AgentsProps[]>([]);
+  const [filteredAgents, setFilteredAgents] = useState<AgentsProps[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
 
-  // Fetch agents with fallback
+  // Fetch agents from API only
   const fetchAgents = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Try to fetch from API
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+   /*    const timeoutId = setTimeout(() => controller.abort(), 5000); */
       
-      const request = await fetch("/features/Car-Agents/api/agents", {
-        signal: controller.signal
-      }).catch(() => null); 
+      const response = await fetch("/features/Car-Agents/api/agents", {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       
-      clearTimeout(timeoutId);
+  /*     clearTimeout(timeoutId); */
       
-      if (request && request.ok) {
-        const data = await request.json();
-        setAgents(data);
-        setFilteredAgents(data);
-      } else {
-        // If API fails, use fallback data
-        setAgents(fallbackAgents);
-        setFilteredAgents(fallbackAgents);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      
+      // Handle different response formats
+      let agentsData: AgentsProps[] = [];
+      
+      if (Array.isArray(data)) {
+        agentsData = data;
+      } else if (data && Array.isArray(data.agents)) {
+        agentsData = data.agents;
+      } else if (data && Array.isArray(data.data)) {
+        agentsData = data.data;
+      } else {
+        throw new Error('Invalid data format received from server');
+      }
+      
+      if (agentsData.length === 0) {
+        throw new Error('No agents available');
+      }
+      
+      setAgents(agentsData);
+      setFilteredAgents(agentsData);
+      
     } catch (error) {
       console.error("Error fetching agents:", error);
-      // Use fallback data on error
-      setAgents(fallbackAgents);
-      setFilteredAgents(fallbackAgents);
+      setError(error instanceof Error ? error.message : 'Failed to load agents. Please try again.');
+      // NO FALLBACK - keep arrays empty
+      setAgents([]);
+      setFilteredAgents([]);
     } finally {
       setLoading(false);
     }
@@ -116,23 +85,29 @@ const OurAgents = () => {
 
   // Extract unique specialties and locations for filters
   const allSpecialties = Array.from(
-    new Set(agents.flatMap(agent => agent.specialties))
+    new Set(agents.flatMap(agent => agent.specialties || []))
   );
   
   const allLocations = ['All', ...Array.from(
-    new Set(agents.map(agent => agent.location.split(',')[0]))
+    new Set(agents.map(agent => agent.location?.split(',')[0] || 'Unknown').filter(Boolean))
   )];
 
   // Apply filters
   useEffect(() => {
+    if (agents.length === 0) {
+      setFilteredAgents([]);
+      return;
+    }
+    
     let result = agents;
     
     // Search filter
-    if (searchTerm) {
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
       result = result.filter(agent =>
-        agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        agent.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        agent.bio.toLowerCase().includes(searchTerm.toLowerCase())
+        agent.name.toLowerCase().includes(term) ||
+        agent.role.toLowerCase().includes(term) ||
+        agent.bio.toLowerCase().includes(term)
       );
     }
     
@@ -197,18 +172,13 @@ const OurAgents = () => {
     setSelectedLocation('All');
   };
 
-  // Initialize with fallback data
+  // Initialize - fetch data on component mount
   useEffect(() => {
-    // Set initial data immediately
-    setAgents(fallbackAgents);
-    setFilteredAgents(fallbackAgents);
-    
-    // Then try to fetch from API in background
     fetchAgents();
   }, []);
 
-  // Show loading only if we're actively fetching and have no data
-  if (loading && agents.length === 0) {
+  // Show loading state
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -220,8 +190,8 @@ const OurAgents = () => {
     );
   }
 
-  // Show error only if we have no data at all
-  if (error && agents.length === 0) {
+  // Show error state
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -230,12 +200,20 @@ const OurAgents = () => {
           </div>
           <h3 className="text-xl font-bold text-gray-800 mb-2">Unable to Load Agents</h3>
           <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={fetchAgents}
-            className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
-          >
-            Try Again
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={fetchAgents}
+              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+            >
+              Try Again
+            </button>
+            <Link
+              href="/"
+              className="block text-center text-gray-600 hover:text-gray-900 font-medium py-2"
+            >
+              ← Return to Home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -291,82 +269,86 @@ const OurAgents = () => {
       </section>
 
       {/* Filter Section */}
-      <section className="py-8 bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-30">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 w-full">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search agents by name, role, or expertise..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                />
-                {searchTerm && (
+      {agents.length > 0 && (
+        <section className="py-8 bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-30">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              <div className="flex-1 w-full">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search agents by name, role, or expertise..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                </div>
+                
+                {/* Location Filter */}
+                <select
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  {allLocations.map(location => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Active Filters Display */}
+                {(selectedSpecialties.length > 0 || selectedLocation !== 'All') && (
                   <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onClick={resetFilters}
+                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
                   >
-                    <X className="w-5 h-5" />
+                    Clear filters
+                    <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Filter by:</span>
-              </div>
-              
-              {/* Location Filter */}
-              <select
-                value={selectedLocation}
-                onChange={(e) => setSelectedLocation(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                {allLocations.map(location => (
-                  <option key={location} value={location}>
-                    {location}
-                  </option>
+            {/* Specialty Filter Chips */}
+            {allSpecialties.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {allSpecialties.map(specialty => (
+                  <button
+                    key={specialty}
+                    onClick={() => toggleSpecialty(specialty)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty)
+                      ? 'bg-orange-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {specialty}
+                    {selectedSpecialties.includes(specialty) && (
+                      <X className="w-3 h-3 ml-2 inline" />
+                    )}
+                  </button>
                 ))}
-              </select>
-              
-              {/* Active Filters Display */}
-              {(selectedSpecialties.length > 0 || selectedLocation !== 'All') && (
-                <button
-                  onClick={resetFilters}
-                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
-                >
-                  Clear filters
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-          
-          {/* Specialty Filter Chips */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {allSpecialties.map(specialty => (
-              <button
-                key={specialty}
-                onClick={() => toggleSpecialty(specialty)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedSpecialties.includes(specialty)
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {specialty}
-                {selectedSpecialties.includes(specialty) && (
-                  <X className="w-3 h-3 ml-2 inline" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Enhanced Agents Grid */}
       <section className="py-20">
@@ -383,34 +365,56 @@ const OurAgents = () => {
                 </p>
               </div>
               
-              <div className="hidden lg:block">
-                <Link 
-                  href="/agents/schedule"
-                  className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Schedule Consultation
-                  <ChevronRight className="w-5 h-5" />
-                </Link>
-              </div>
+              {agents.length > 0 && (
+                <div className="hidden lg:block">
+                  <Link 
+                    href="/agents/schedule"
+                    className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Schedule Consultation
+                    <ChevronRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
           {filteredAgents.length === 0 ? (
             <div className="text-center py-20">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-12 h-12 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-3">No Agents Found</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Try adjusting your search terms or filters to find what you're looking for.
-              </p>
-              <button
-                onClick={resetFilters}
-                className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
-              >
-                Clear All Filters
-              </button>
+              {agents.length === 0 ? (
+                <>
+                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Users className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Agents Available</h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    There are currently no agents available. Please check back later.
+                  </p>
+                  <button
+                    onClick={fetchAgents}
+                    className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                  >
+                    Refresh
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Agents Found</h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    Try adjusting your search terms or filters to find what you're looking for.
+                  </p>
+                  <button
+                    onClick={resetFilters}
+                    className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                  >
+                    Clear All Filters
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <>

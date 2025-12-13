@@ -36,7 +36,7 @@ async function main() {
       reviews: 89,
       image: '/Profiles/agent2.jpeg',
       phone: '+254 743 264 773',
-      email: 'mutheu@autorentpro.com',
+      email: 'tianahtish@gmail.com',
       location: 'Mombasa, Kenya',
       bio: 'Dedicated to ensuring customer satisfaction with quick and reliable assistance.',
       specialties: ['Family Vehicles', 'Airport Pickups', 'Tourist Packages'],
