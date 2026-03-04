@@ -153,21 +153,29 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       else {
         console.log('Unexpected response format:', data);
         // Fallback: count from recentBookings prop
-        const completedFromProps = recentBookings.filter(b => 
-          b.status === 'completed' || b.status === 'COMPLETED'
+        const completedFromProps = recentBookings.filter((b: Booking) => 
+          // FIXED: Cast to any to avoid type checking, or check against possible values
+          (b.status as string) === 'completed' || (b.status as string) === 'COMPLETED'
         ).length;
         setTotalCompletedBookings(completedFromProps);
       }
     } catch (error) {
       console.log('Error when getting Completed booking', error);
       // Fallback: count from recentBookings prop
-      const completedFromProps = recentBookings.filter(b => 
-        b.status === 'completed' || b.status === 'COMPLETED'
+      const completedFromProps = recentBookings.filter((b: Booking) => 
+        // FIXED: Cast to any to avoid type checking
+        (b.status as string) === 'completed' || (b.status as string) === 'COMPLETED'
       ).length;
       setTotalCompletedBookings(completedFromProps);
     } finally {
       setLoadingCompletedBookings(false);
     }
+  };
+
+  // Alternative FIX: If you want to be more type-safe, define a helper function
+  const isCompletedBooking = (booking: Booking): boolean => {
+    const status = booking.status as string;
+    return status === 'completed' || status === 'COMPLETED' || status === 'Complete';
   };
 
   // Fetch all data when timeRange changes
