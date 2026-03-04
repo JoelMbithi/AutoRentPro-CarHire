@@ -18,7 +18,7 @@ import { dashboardService, type DashboardStats as ApiDashboardStats, type Recent
 import ReportsContent from './Components/Admin_Report/ReportsContent';
 import MessageContent from './Components/Admin_Message/MessageContent';
 import { useRouter } from 'next/navigation';
-import { paymentService } from './api/dashboard/payments/paymentService';
+import { paymentService, RevenueSummary } from './api/dashboard/payments/paymentService'; // ✅ Add RevenueSummary here
 import AdminSettingsPage from './Components/Adimn_Settings/AdminSetting';
 
 const Dashboard = () => {
@@ -31,7 +31,7 @@ const Dashboard = () => {
   const [apiStats, setApiStats]             = useState<ApiDashboardStats | null>(null);
   const [apiBookings, setApiBookings]       = useState<ApiRecentBooking[]>([]);
   const [apiFleet, setApiFleet]             = useState<ApiFleetVehicle[]>([]);
-  const [revenueSummary, setRevenueSummary] = useState<RevenueSummary | null>(null); // Add revenue summary state
+  const [revenueSummary, setRevenueSummary] = useState<RevenueSummary | null>(null); // Now works ✅
   const [openDropdown, setOpenDropdown]     = useState<'profile' | null>(null);
   const [user, setUser]                     = useState<any>(null);
 
@@ -145,6 +145,9 @@ const Dashboard = () => {
   const fleetVehicles: FleetVehicle[] = apiFleet.map(v => ({
     id: v.id, name: v.name, plate: v.plate, status: v.status,
     rating: v.rating, price: v.price, type: v.type,
+     year: v.year || '2024', 
+  make: v.make || v.name.split(' ')[0] || 'Unknown', 
+  model: v.model || v.name.split(' ').slice(1).join(' ') || 'Unknown', 
     fuel: v.fuel, location: v.location, nextService: v.nextService, image: v.image,
     currentRenter: v.currentRenter,
   }));

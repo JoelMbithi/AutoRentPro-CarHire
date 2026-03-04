@@ -50,6 +50,9 @@ export interface FleetVehicle {
   rating: number;
   price: string;
   type: CarCategory;
+  year?: string;  
+  make?: string;  
+  model?: string;
   fuel: string;
   location: string;
   nextService: string;
