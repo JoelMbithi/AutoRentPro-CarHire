@@ -176,7 +176,7 @@ function getDateRangeFromTimeRange(timeRange: TimeRange): { startDate: Date | nu
   const startDate = new Date();
   
   switch (timeRange) {
-    case 'today':
+    case 'day':  // ✅ FIXED: Changed from 'today' to 'day'
       startDate.setHours(0, 0, 0, 0);
       return { startDate, endDate: now };
     case 'week':
