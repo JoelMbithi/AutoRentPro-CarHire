@@ -389,45 +389,46 @@ private getMockFleet(): FleetVehicle[] {
 }
 
 
-  // Get all customers
- async getAllCustomers(
-    page: number = 1,
-    limit: number = 50,
-    filters?: {
-      search?: string;
-      type?: string;
-    }
-  ): Promise<ApiResponse<Customer[]>> {
-    try {
-      const params = new URLSearchParams();
-      params.set('page', page.toString());
-      params.set('limit', limit.toString());
-
-      if (filters?.search) params.set('search', filters.search);
-      if (filters?.type) params.set('role', filters.type);
-
-      const response = await fetch(`/api/dashboard/customers?${params.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch customers');
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      // Return empty structure if API fails
-      return {
-        success: false,
-        data: [],
-        meta: {
-          total: 0,
-          page,
-          limit
-        }
-      };
-    }
+ // Get all customers
+async getAllCustomers(
+  page: number = 1,
+  limit: number = 50,
+  filters?: {
+    search?: string;
+    type?: string;
   }
+): Promise<ApiResponse<Customer[]>> {
+  try {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    params.set('limit', limit.toString());
+
+    if (filters?.search) params.set('search', filters.search);
+    if (filters?.type) params.set('role', filters.type);
+
+    const response = await fetch(`/api/dashboard/customers?${params.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch customers');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    // Return empty structure if API fails - FIXED: Added totalPages
+    return {
+      success: false,
+      data: [],
+      meta: {
+        total: 0,
+        page,
+        limit,
+        totalPages: 0  // Added this line
+      }
+    };
+  }
+}
 
 
 async deleteCustomer(id: number): Promise<void> {

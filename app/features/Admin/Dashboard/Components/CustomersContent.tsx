@@ -45,23 +45,26 @@ export default function CustomersContent() {
       });
       const raw = res?.success && Array.isArray(res.data) ? res.data
                 : Array.isArray(res) ? res : [];
+      
       setCustomers(raw.map((u: any) => ({
-        id:           u.id,
-        customerId:   `C${u.id.toString().padStart(3, '0')}`,
-        name:         `${u.firstName} ${u.lastName}`,
-        email:        u.email,
-        phone:        u.phone || '—',
-        role:         u.role,
-        customerType: u.role,
-        status:       u.isVerified ? 'active' : 'inactive',
-        isVerified:   u.isVerified,
-        totalSpent:   u.bookings?.reduce((s: number, b: any) => s + (b.totalPrice || 0), 0) || 0,
-        bookings:     u._count?.bookings || 0,
-        valueScore:   '4.5',
-        joinedDate:   u.createdAt,
-        lastBooking:  u.bookings?.[0]?.createdAt || null,
-        userProfile:  u.userProfile,
-        _count:       u._count,
+        id: u.id,
+        customerId: `C${u.id.toString().padStart(3, '0')}`,
+        firstName: u.firstName || '',
+        lastName: u.lastName || '',
+        name: `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+        email: u.email || '',
+        phone: u.phone || '—',
+        role: u.role || 'CUSTOMER',
+        customerType: u.role || 'CUSTOMER',
+        status: u.isVerified ? 'active' : 'inactive',
+        isVerified: u.isVerified || false,
+        totalSpent: u.bookings?.reduce((s: number, b: any) => s + (b.totalPrice || 0), 0) || 0,
+        bookings: u._count?.bookings || 0,
+        valueScore: '4.5',
+        joinedDate: u.createdAt || new Date(),
+        lastBooking: u.bookings?.[0]?.createdAt || null,
+        userProfile: u.userProfile,
+        _count: u._count,
         bookingsArray: u.bookings || [],
       })));
     } catch {
@@ -201,7 +204,6 @@ export default function CustomersContent() {
             Loading…
           </div>
 
-        /* ── empty ── */
         ) : customers.length === 0 ? (
           <div className="py-16 text-center text-sm text-gray-300">
             No customers found
@@ -211,7 +213,6 @@ export default function CustomersContent() {
             </button>
           </div>
 
-        /* ── table ── */
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -225,84 +226,89 @@ export default function CustomersContent() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map(c => (
-                  <tr key={c.customerId} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-none">
+                {customers.map(c => {
+                  // Create a safe customerId that's guaranteed to be a string
+                  const safeCustomerId = c.customerId || `C${c.id.toString().padStart(3, '0')}`;
+                  
+                  return (
+                    <tr key={safeCustomerId} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-none">
 
-                    {/* name */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className={`w-8 h-8 rounded-full ${avatarColor(c.customerId)} flex items-center justify-center text-white text-xs font-semibold shrink-0`}>
-                          {initials(c.name)}
+                      {/* name */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-full ${avatarColor(safeCustomerId)} flex items-center justify-center text-white text-xs font-semibold shrink-0`}>
+                            {initials(c.name)}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-800">{c.name}</div>
+                            <div className="text-xs text-gray-300 font-mono">{safeCustomerId}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-medium text-gray-800">{c.name}</div>
-                          <div className="text-xs text-gray-300 font-mono">{c.customerId}</div>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-4 py-3 text-gray-500">{c.email}</td>
+                      <td className="px-4 py-3 text-gray-500">{c.email}</td>
 
-                    <td className="px-4 py-3 text-gray-400">{c.phone}</td>
+                      <td className="px-4 py-3 text-gray-400">{c.phone}</td>
 
-                    {/* role */}
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_STYLES[c.role] ?? ROLE_STYLES.CUSTOMER}`}>
-                        {c.role}
-                      </span>
-                    </td>
-
-                    {/* bookings */}
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-gray-700">{c.bookings}</span>
-                      {c.lastBooking && (
-                        <div className="text-xs text-gray-300 mt-0.5">{fmtDate(c.lastBooking)}</div>
-                      )}
-                    </td>
-
-                    {/* spent */}
-                    <td className="px-4 py-3 font-mono text-gray-800">
-                      ksh {Number(c.totalSpent).toLocaleString()}
-                    </td>
-
-                    {/* status */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className={`w-1.5 h-1.5 rounded-full ${c.status === 'active' ? 'bg-emerald-400' : 'bg-gray-300'}`} />
-                        <span className={`text-xs ${c.status === 'active' ? 'text-emerald-600' : 'text-gray-400'}`}>
-                          {c.status === 'active' ? 'Active' : 'Inactive'}
+                      {/* role */}
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_STYLES[c.role] ?? ROLE_STYLES.CUSTOMER}`}>
+                          {c.role}
                         </span>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* actions */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        {[
-                          { icon: <Eye size={14} />,     color: 'text-gray-400', title: 'View',   fn: () => router.push(`/dashboard/customers/${c.id}`) },
-                          { icon: <Edit size={14} />,    color: 'text-blue-400', title: 'Edit',   fn: () => alert(`Edit: ${c.name}`) },
-                          { icon: <Mail size={14} />,    color: 'text-orange-400', title: 'Email', fn: () => window.location.href = `mailto:${c.email}` },
-                          { icon: <Trash2 size={14} />,  color: 'text-red-400',  title: 'Delete', fn: () => handleDelete(c.customerId, c.name) },
-                        ].map((btn, i) => (
-                          <button
-                            key={i}
-                            title={btn.title}
-                            onClick={btn.fn}
-                            className={`p-1.5 rounded-md hover:bg-gray-100 transition-colors ${btn.color}`}
-                          >
-                            {btn.icon}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      {/* bookings */}
+                      <td className="px-4 py-3">
+                        <span className="font-medium text-gray-700">{c.bookings}</span>
+                        {c.lastBooking && (
+                          <div className="text-xs text-gray-300 mt-0.5">{fmtDate(new Date(c.lastBooking).toISOString().split('T')[0])}</div>
+                        )}
+                      </td>
+
+                      {/* spent */}
+                      <td className="px-4 py-3 font-mono text-gray-800">
+                        ksh {Number(c.totalSpent).toLocaleString()}
+                      </td>
+
+                      {/* status */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${c.status === 'active' ? 'bg-emerald-400' : 'bg-gray-300'}`} />
+                          <span className={`text-xs ${c.status === 'active' ? 'text-emerald-600' : 'text-gray-400'}`}>
+                            {c.status === 'active' ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* actions */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          {[
+                            { icon: <Eye size={14} />,     color: 'text-gray-400', title: 'View',   fn: () => router.push(`/dashboard/customers/${c.id}`) },
+                            { icon: <Edit size={14} />,    color: 'text-blue-400', title: 'Edit',   fn: () => alert(`Edit: ${c.name}`) },
+                            { icon: <Mail size={14} />,    color: 'text-orange-400', title: 'Email', fn: () => window.location.href = `mailto:${c.email}` },
+                            { icon: <Trash2 size={14} />,  color: 'text-red-400',  title: 'Delete', fn: () => handleDelete(safeCustomerId, c.name) },
+                          ].map((btn, i) => (
+                            <button
+                              key={i}
+                              title={btn.title}
+                              onClick={btn.fn}
+                              className={`p-1.5 rounded-md hover:bg-gray-100 transition-colors ${btn.color}`}
+                            >
+                              {btn.icon}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
 
-        {/* footer - FIXED: Added safe check for avgRating */}
+        {/* footer */}
         {!loading && customers.length > 0 && (
           <div className="px-4 py-2.5 border-t border-gray-100 flex justify-between text-xs text-gray-300">
             <span>
