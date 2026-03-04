@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
         email: true,
         phone: true,
         role: true,
-        // Don't select password here
+        // Didn&apos;t select password here
       }
     });
 

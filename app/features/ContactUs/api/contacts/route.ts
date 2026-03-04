@@ -59,7 +59,7 @@ export async function POST (request: NextRequest){
       
       console.log('Emails sent successfully');
     } catch (emailError) {
-      // Log email error but don't fail the request - the message is still saved in DB
+      // Log email error but Didn&apos;t fail the request - the message is still saved in DB
       console.error('Failed to send emails:', emailError);
       // You might want to store that emails failed in your database
       await prisma.contactMessage.update({

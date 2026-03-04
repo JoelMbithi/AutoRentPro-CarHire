@@ -636,7 +636,7 @@ const ForgotPasswordPage = () => {
                     </button>
 
                     <p style={{ fontSize: 11, color: "#9a8880", textAlign: "center", marginTop: 16 }}>
-                      Didn't receive code? Check your spam folder or{" "}
+                     Didn&apos;t receive code? Check your spam folder or{" "}
                       <button
                         type="button"
                         onClick={goBackToEmail}

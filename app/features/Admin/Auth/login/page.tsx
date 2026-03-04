@@ -138,7 +138,7 @@ const LoginPage = () => {
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Don't have an account?{" "}
+            Didn&apos;t have an account?{" "}
             <Link href="/features/Admin/Auth/register" className="text-orange-500 font-medium hover:underline">
               Register here
             </Link>

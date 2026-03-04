@@ -513,7 +513,7 @@ export default function AdminSettingsPage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm">
             <h3 className="font-semibold text-gray-900 mb-1">Create backup</h3>
-            <p className="text-sm text-gray-400 mb-5">~2.5 GB · 3–5 minutes. Don't close this window.</p>
+            <p className="text-sm text-gray-400 mb-5">~2.5 GB · 3–5 minutes. Didn&apos;t close this window.</p>
 
             {isBackingUp ? (
               <div className="space-y-3">

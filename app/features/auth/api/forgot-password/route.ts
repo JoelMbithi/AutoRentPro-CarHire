@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       where: { email },
     });
 
-    // For security reasons, don't reveal if user exists or not
+    // For security reasons, Didn&apos;t reveal if user exists or not
     if (!user) {
       return NextResponse.json(
         { 

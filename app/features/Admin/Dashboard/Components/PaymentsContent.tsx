@@ -59,7 +59,7 @@ export default function PaymentsContent({ revenueSummary, timeRange = 'month', s
       setLoading(true); 
       setError(null);
       
-      // Don't send status if it's 'all'
+      // Didn&apos;t send status if it's 'all'
       const statusParam = statusFilter === 'all' ? '' : statusFilter;
       
       console.log('Fetching payments with:', {

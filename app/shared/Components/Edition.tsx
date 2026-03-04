@@ -185,7 +185,7 @@ const Edition = () => {
         <div className="border border-gray-200 p-10">
           <span className="block text-xs text-orange-600 font-semibold tracking-widest uppercase mb-4">✦ The AutoRentPro Difference</span>
           <p className="text-xs md:text-xl text-gray-500 font-medium italic leading-relaxed max-w-2xl">
-            "We don't just rent cars — we deliver{" "}
+            "We Didn&apos;t just rent cars — we deliver{" "}
             <span className="text-gray-700 not-italic font-semibold">confidence, comfort, and class.</span>{" "}
             From the moment you book until you return the keys."
           </p>
