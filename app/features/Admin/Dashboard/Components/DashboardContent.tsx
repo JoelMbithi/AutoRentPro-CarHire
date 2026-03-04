@@ -123,54 +123,55 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   };
 
   // Get all completed bookings - FIXED VERSION
-  const fetchCompletedBookings = async () => {
-    setLoadingCompletedBookings(true);
-    try {
-      const result = await fetch(`/features/Admin/Dashboard/api/dashboard/bookings?status=COMPLETED&timeRange=${timeRange}&limit=1000`);
-      const data = await result.json();
 
-      console.log('Completed bookings response:', data); // Debug log
+const fetchCompletedBookings = async () => {
+  setLoadingCompletedBookings(true);
+  try {
+    const result = await fetch(`/features/Admin/Dashboard/api/dashboard/bookings?status=COMPLETED&timeRange=${timeRange}&limit=1000`);
+    const data = await result.json();
 
-      // Handle different response formats
-      if (Array.isArray(data)) {
-        // Direct array response (like your API returns)
-        const completedCount = data.filter((booking: any) => 
-          booking.status === 'COMPLETED' || booking.uiStatus === 'completed'
-        ).length;
-        setTotalCompletedBookings(completedCount);
-      } 
-      else if (data.success && Array.isArray(data.data)) {
-        // Wrapped in success/data
-        const completedCount = data.data.filter((booking: any) => 
-          booking.status === 'COMPLETED' || booking.uiStatus === 'completed'
-        ).length;
-        setTotalCompletedBookings(completedCount);
-      } 
-      else if (data.meta?.total) {
-        // Has meta.total
-        setTotalCompletedBookings(data.meta.total);
-      } 
-      else {
-        console.log('Unexpected response format:', data);
-        // Fallback: count from recentBookings prop
-        const completedFromProps = recentBookings.filter((b: Booking) => 
-          // FIXED: Cast to any to avoid type checking, or check against possible values
-          (b.status as string) === 'completed' || (b.status as string) === 'COMPLETED'
-        ).length;
-        setTotalCompletedBookings(completedFromProps);
-      }
-    } catch (error) {
-      console.log('Error when getting Completed booking', error);
-      // Fallback: count from recentBookings prop
-      const completedFromProps = recentBookings.filter((b: Booking) => 
-        // FIXED: Cast to any to avoid type checking
-        (b.status as string) === 'completed' || (b.status as string) === 'COMPLETED'
+    console.log('Completed bookings response:', data); // Debug log
+
+    // Handle different response formats
+    if (Array.isArray(data)) {
+      // Direct array response - use type assertion to bypass TypeScript
+      const completedCount = data.filter((booking: any) => 
+        String(booking.status).toUpperCase() === 'COMPLETED' || 
+        String(booking.uiStatus).toUpperCase() === 'COMPLETED'
+      ).length;
+      setTotalCompletedBookings(completedCount);
+    } 
+    else if (data.success && Array.isArray(data.data)) {
+      // Wrapped in success/data
+      const completedCount = data.data.filter((booking: any) => 
+        String(booking.status).toUpperCase() === 'COMPLETED' || 
+        String(booking.uiStatus).toUpperCase() === 'COMPLETED'
+      ).length;
+      setTotalCompletedBookings(completedCount);
+    } 
+    else if (data.meta?.total) {
+      // Has meta.total
+      setTotalCompletedBookings(data.meta.total);
+    } 
+    else {
+      console.log('Unexpected response format:', data);
+      // Fallback: count from recentBookings prop - using type assertion
+      const completedFromProps = recentBookings.filter((booking: any) => 
+        String(booking.status).toUpperCase() === 'COMPLETED'
       ).length;
       setTotalCompletedBookings(completedFromProps);
-    } finally {
-      setLoadingCompletedBookings(false);
     }
-  };
+  } catch (error) {
+    console.log('Error when getting Completed booking', error);
+    // Fallback: count from recentBookings prop - using type assertion
+    const completedFromProps = recentBookings.filter((booking: any) => 
+      String(booking.status).toUpperCase() === 'COMPLETED'
+    ).length;
+    setTotalCompletedBookings(completedFromProps);
+  } finally {
+    setLoadingCompletedBookings(false);
+  }
+};
 
   // Alternative FIX: If you want to be more type-safe, define a helper function
   const isCompletedBooking = (booking: Booking): boolean => {
