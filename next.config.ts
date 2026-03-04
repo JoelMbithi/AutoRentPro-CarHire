@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
 
   webpack: (config, { defaultLoaders }) => {
     // Support .ts and .tsx
-    config.resolve.extensions.push('.ts', '.tsx');
+    config.resolve!.extensions.push('.ts', '.tsx');
 
     // Add rule for Prisma generated TS files
     config.module.rules.push({
