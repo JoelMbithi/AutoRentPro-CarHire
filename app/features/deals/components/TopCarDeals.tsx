@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import {
   SiHonda, SiAudi, SiNissan, SiMazda, SiToyota,
-  SiBmw, SiMercedes, SiVolkswagen, SiFord, SiHyundai, SiKia,
+  SiBmw, SiVolkswagen, SiFord, SiHyundai, SiKia,
 } from "react-icons/si";
+import { TbBrandMercedes } from "react-icons/tb";
+
 import { FaCar } from "react-icons/fa";
 
 const mainBrands = [
@@ -12,7 +14,7 @@ const mainBrands = [
   { name: "Honda",    icon: <SiHonda    className="w-5 h-5" /> },
   { name: "BMW",      icon: <SiBmw      className="w-5 h-5" /> },
   { name: "Audi",     icon: <SiAudi     className="w-5 h-5" /> },
-  { name: "Mercedes", icon: <SiMercedes className="w-5 h-5" /> },
+  { name: "Mercedes", icon: <TbBrandMercedes className="w-5 h-5" /> },
   { name: "Nissan",   icon: <SiNissan   className="w-5 h-5" /> },
 ];
 
