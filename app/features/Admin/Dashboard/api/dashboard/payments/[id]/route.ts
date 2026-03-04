@@ -2,18 +2,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-interface Params {
-  params: {
-    id: string;
-  };
-}
+// Remove the interface Params - we'll type it inline
 
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }  // Changed: params is a Promise
+) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;  // Added: await params
+    const paymentId = parseInt(id);
     
     const payment = await prisma.payment.findUnique({
-      where: { id },
+      where: { id: paymentId },
       include: {
         user: {
           select: {
