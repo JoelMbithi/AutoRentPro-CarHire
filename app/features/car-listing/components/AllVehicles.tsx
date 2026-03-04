@@ -407,12 +407,15 @@ const AllVehicles: React.FC<AllVehiclesProps> = ({ loggedUser }) => {
       )}
 
       {/* Rent Popup */}
-      <CarRentPopUp
-        showPopup={showPopup}
-        selectedCar={selectedCar}
-        closePopup={() => { setShowPopup(false); setSelectedCar(null); }}
-        user={currentUser}
-      />
+     <CarRentPopUp
+  showPopup={showPopup}
+  selectedCar={selectedCar}
+  closePopup={() => { setShowPopup(false); setSelectedCar(null); }}
+  user={currentUser ? { 
+    id: currentUser.id, 
+    name: `${currentUser.firstName} ${currentUser.lastName}`.trim() 
+  } : undefined}
+/>
     </div>
   );
 };
