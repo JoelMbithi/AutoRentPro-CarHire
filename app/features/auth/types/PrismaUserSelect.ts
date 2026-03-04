@@ -1,7 +1,4 @@
-// /app/features/auth/types/PrismaUserSelect.ts
-
-import { UserRole } from "@/generated/prisma";
-
+import { UserRole } from "@/app/generated/prisma/enums"; 
 
 export type CreatedUser = {
   id: number;
