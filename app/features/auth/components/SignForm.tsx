@@ -1,204 +1,168 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaCar, FaCheck } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const SignForm = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    agreeToTerms: false
-  });
-
+  const router = useRouter();
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    if (error) setError('');
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
     setIsSubmitting(true);
-    setError('');
-    
+    setError("");
+
     try {
       const response = await fetch("/features/auth/api/signin", {
         method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        })
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        console.log("User signed In successfully", data.user);
-        // Force a full page reload to update the navbar
-        window.location.href = "/";
+        // Dispatch custom event for navbar to listen to
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('user-login'));
+        }
+        
+        // Use replace instead of push to prevent back button issues
+        router.replace("/");
+        
+        // Force a hard refresh after a tiny delay to ensure cookie is set
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
       } else {
-        setError(data.error || "Sign in failed");
-        console.log("Error signing in:", data.error);
+        setError(data.error || "Sign in failed. Please check your credentials.");
       }
-      
-    } catch (error) {
-      console.error("Sign in error:", error);
-      setError("An unexpected error occurred");
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Remove password strength for sign-in (it's more relevant for sign-up)
+  const isButtonDisabled = isSubmitting || !formData.email || !formData.password;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <div className="text-3xl font-bold text-gray-900 tracking-tight">
-              <span className="text-orange-600">Auto</span>
-              <span className="text-gray-800">Rent</span>
-              <span className="text-orange-600">Pro</span>
-              <span className="text-gray-800">.</span>
-            </div>
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="w-full max-w-sm border border-gray-200 rounded-lg p-8 shadow">
+
+        {/* Logo */}
+        <div className="mb-10">
+          <Link href="/">
+            <span className="text-xl font-bold tracking-tight">
+              <span className="text-xl font-bold tracking-tight">
+              <span className="text-gray-900">Auto</span>
+              <span className="text-orange-600">Rent</span>
+              <span className="text-gray-900">Pro</span>
+              <span className="text-orange-600">.</span>
+            </span>
+            </span>
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Sign In To Your Account
-          </h1>
-          <p className="text-lg text-gray-600 max-w-md mx-auto">
-            Welcome back! Sign in to continue your car rental journey
-          </p>
+          <h1 className="mt-6 text-2xl font-semibold text-gray-900">Sign in</h1>
+          <p className="mt-1 text-sm text-gray-500">Welcome back</p>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-sm font-medium">{error}</p>
-            </div>
-          )}
+        {/* Error */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                  placeholder="Enter your email address"
-                />
-              </div>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
-              </div>
+              <Link href="/auth/forgot-password" className="text-xs text-orange-600 hover:text-orange-700">
+                Forgot password?
+              </Link>
             </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting || !formData.password || !formData.email}
-              className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin"></div>
-                  Signing In...
-                </div>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-
-            {/* Sign Up Link */}
-            <div className="text-center">
-              <p className="text-gray-600">
-                Don't have an account?{' '}
-                <Link href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-semibold">
-                  Sign up here
-                </Link>
-              </p>
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3.5 py-2.5 pr-10 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
+              </button>
             </div>
-          </form>
-        </div>
-
-        {/* Benefits Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-6 bg-white rounded-2xl shadow-lg">
-            <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FaCar className="text-orange-600 text-xl" />
-            </div>
-            <h3 className="font-semibold text-gray-800 mb-2">Quick Bookings</h3>
-            <p className="text-sm text-gray-600">Reserve your vehicle in minutes</p>
           </div>
-          <div className="text-center p-6 bg-white rounded-2xl shadow-lg">
-            <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FaCheck className="text-orange-600 text-xl" />
-            </div>
-            <h3 className="font-semibold text-gray-800 mb-2">Best Prices</h3>
-            <p className="text-sm text-gray-600">Exclusive member discounts</p>
-          </div>
-          <div className="text-center p-6 bg-white rounded-2xl shadow-lg">
-            <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FaLock className="text-orange-600 text-xl" />
-            </div>
-            <h3 className="font-semibold text-gray-800 mb-2">Secure</h3>
-            <p className="text-sm text-gray-600">Your data is protected</p>
-          </div>
-        </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isButtonDisabled}
+            className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors mt-2
+              ${isButtonDisabled
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-orange-600 hover:bg-orange-700 text-white"
+              }`}
+          >
+            {isSubmitting ? "Signing in..." : "Sign in"}
+          </button>
+
+        </form>
+
+        <p className="mt-5 text-center text-sm text-gray-500">
+          No account?{" "}
+          <Link href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-medium">
+            Sign up
+          </Link>
+        </p>
+
       </div>
     </div>
   );

@@ -5,16 +5,19 @@ import Navbar from "@/app/shared/Components/Navbar";
 import Footer from "@/app/shared/Components/Footer";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
 
-  // Hide footer for your agent pages
-  const shouldHideFooter = pathname.startsWith("/features/Car-Agents/components/agents");
+  // Hide Navbar/Footer for multiple routes
+  const shouldHideLayout =
+    pathname.startsWith("/features/Admin") || // admin pages
+    pathname.startsWith("/features/Car-Agents/components/agents"); // Car-Agents pages
 
   return (
     <>
-     {!shouldHideFooter && <Navbar />}
+    
+      {!shouldHideLayout && <Navbar />}
       {children}
-      {!shouldHideFooter && <Footer />}
+      {!shouldHideLayout && <Footer />}
     </>
   );
 }

@@ -167,7 +167,7 @@ const Setting = ({ isOpen, onClose, user }: SettingProps) => {
         billing: activeTab === 'billing' ? billing : undefined,
       };
 
-      const response = await fetch('/api/settings', {
+      const response = await fetch('/features/settings/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -205,7 +205,7 @@ const Setting = ({ isOpen, onClose, user }: SettingProps) => {
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/settings/password', {
+      const response = await fetch('/features/settings/api/settings/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(passwords),
@@ -440,698 +440,753 @@ const Setting = ({ isOpen, onClose, user }: SettingProps) => {
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Account Tab */}
-                {activeTab === 'account' && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <User className="w-6 h-6 text-orange-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Account Information</h2>
-                        <p className="text-gray-600">Update your personal details</p>
-                      </div>
-                    </div>
+  {/* Account Tab */}
+  {activeTab === 'account' && (
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+          <User className="w-6 h-6 text-orange-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Account Information</h2>
+          <p className="text-gray-600">Update your personal details</p>
+        </div>
+      </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          First Name
-                        </label>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            First Name
+          </label>
+          <input
+            type="text"
+            value={accountData.firstName}
+            onChange={(e) => setAccountData({...accountData, firstName: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Last Name
+          </label>
+          <input
+            type="text"
+            value={accountData.lastName}
+            onChange={(e) => setAccountData({...accountData, lastName: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address
+          </label>
+          <div className="relative">
+            <input
+              type="email"
+              value={accountData.email}
+              onChange={(e) => setAccountData({...accountData, email: e.target.value})}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pl-11"
+            />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number
+          </label>
+          <div className="relative">
+            <input
+              type="tel"
+              value={accountData.phone}
+              onChange={(e) => setAccountData({...accountData, phone: e.target.value})}
+              placeholder="+254 700 000 000"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pl-11"
+            />
+            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Actions</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <User className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Deactivate Account</p>
+                <p className="text-sm text-gray-500">Temporarily disable your account</p>
+              </div>
+            </div>
+          </button>
+          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Download className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Export Data</p>
+                <p className="text-sm text-gray-500">Download your personal data</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Notifications Tab */}
+  {activeTab === 'notifications' && (
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+            <Bell className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Notification Preferences</h2>
+            <p className="text-gray-600">Choose how you want to be notified</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {Object.entries(notifications).map(([key, value]) => (
+            <div key={key} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+              <div>
+                <p className="font-medium text-gray-900 capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Receive notifications about {key.toLowerCase().replace('notifications', '')}
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={value}
+                  onChange={(e) => setNotifications({...notifications, [key]: e.target.checked})}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+        <div className="flex items-center gap-3">
+          <Bell className="w-6 h-6 text-blue-600" />
+          <div>
+            <h3 className="font-semibold text-gray-900">Notification Channels</h3>
+            <p className="text-gray-600 text-sm">Configure how notifications are delivered</p>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3 mb-2">
+              <Mail className="w-5 h-5 text-gray-600" />
+              <span className="font-medium">Email</span>
+            </div>
+            <p className="text-sm text-gray-500">Notifications sent to your email</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3 mb-2">
+              <Smartphone className="w-5 h-5 text-gray-600" />
+              <span className="font-medium">Push</span>
+            </div>
+            <p className="text-sm text-gray-500">In-app and browser notifications</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3 mb-2">
+              <Phone className="w-5 h-5 text-gray-600" />
+              <span className="font-medium">SMS</span>
+            </div>
+            <p className="text-sm text-gray-500">Text message notifications</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Privacy Tab */}
+  {activeTab === 'privacy' && (
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+          <Shield className="w-6 h-6 text-green-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Privacy Settings</h2>
+          <p className="text-gray-600">Control your privacy and data</p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <h3 className="font-medium text-gray-900 mb-3">Profile Visibility</h3>
+          <div className="grid md:grid-cols-3 gap-3">
+            {[
+              { value: 'public', label: 'Public', desc: 'Everyone can see your profile' },
+              { value: 'contacts', label: 'Contacts Only', desc: 'Only your contacts can see' },
+              { value: 'private', label: 'Private', desc: 'Only you can see your profile' },
+            ].map((option) => (
+              <label key={option.value} className="relative">
+                <input
+                  type="radio"
+                  name="profileVisibility"
+                  value={option.value}
+                  checked={privacy.profileVisibility === option.value}
+                  onChange={(e) => setPrivacy({...privacy, profileVisibility: e.target.value})}
+                  className="sr-only peer"
+                />
+                <div className="p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
+                  <div className="font-medium text-gray-900 mb-1">{option.label}</div>
+                  <div className="text-sm text-gray-500">{option.desc}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="font-medium text-gray-900 mb-3">Data Settings</h3>
+          <div className="space-y-4">
+            {Object.entries(privacy).filter(([key]) => key !== 'profileVisibility').map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900 capitalize">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </p>
+                  <p className="text-sm text-gray-500">Manage your {key.toLowerCase()} settings</p>
+                </div>
+                {typeof value === 'boolean' ? (
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={value}
+                      onChange={(e) => setPrivacy({...privacy, [key]: e.target.checked})}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                  </label>
+                ) : (
+                  <select
+                    value={value as string}
+                    onChange={(e) => setPrivacy({...privacy, [key]: e.target.value})}
+                    className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    {key === 'dataRetentionPeriod' && (
+                      <>
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="365">1 year</option>
+                      </>
+                    )}
+                  </select>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4 mt-6">
+          <div className="flex items-center gap-3">
+            <Database className="w-5 h-5 text-gray-600" />
+            <div>
+              <p className="font-medium text-gray-900">Data Privacy</p>
+              <p className="text-sm text-gray-500">
+                Your data is protected by our privacy policy. You can request data deletion at any time.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Preferences Tab */}
+  {activeTab === 'preferences' && (
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+          <Car className="w-6 h-6 text-purple-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Preferences</h2>
+          <p className="text-gray-600">Customize your rental experience</p>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Preferred Vehicle Type
+          </label>
+          <select
+            value={preferences.preferredVehicleType}
+            onChange={(e) => setPreferences({...preferences, preferredVehicleType: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="SUV">SUV</option>
+            <option value="Sedan">Sedan</option>
+            <option value="Hatchback">Hatchback</option>
+            <option value="Convertible">Convertible</option>
+            <option value="Luxury">Luxury</option>
+            <option value="Economy">Economy</option>
+            <option value="Minivan">Minivan</option>
+            <option value="Truck">Truck</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Default Rental Duration (days)
+          </label>
+          <select
+            value={preferences.defaultRentalDuration}
+            onChange={(e) => setPreferences({...preferences, defaultRentalDuration: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="1">1 day</option>
+            <option value="3">3 days</option>
+            <option value="7">7 days</option>
+            <option value="14">14 days</option>
+            <option value="30">30 days</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Language
+          </label>
+          <select
+            value={preferences.language}
+            onChange={(e) => setPreferences({...preferences, language: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="en">English</option>
+            <option value="sw">Swahili</option>
+            <option value="fr">French</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Currency
+          </label>
+          <select
+            value={preferences.currency}
+            onChange={(e) => setPreferences({...preferences, currency: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="KES">Kenyan Shilling (KES)</option>
+            <option value="USD">US Dollar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="GBP">British Pound (GBP)</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Theme
+          </label>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setPreferences({...preferences, theme: 'light'})}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border ${
+                preferences.theme === 'light' 
+                  ? 'border-orange-500 bg-orange-50 text-orange-700' 
+                  : 'border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <Sun className="w-4 h-4" />
+              Light
+            </button>
+            <button
+              onClick={() => setPreferences({...preferences, theme: 'dark'})}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border ${
+                preferences.theme === 'dark' 
+                  ? 'border-gray-800 bg-gray-900 text-white' 
+                  : 'border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <Moon className="w-4 h-4" />
+              Dark
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Measurement System
+          </label>
+          <select
+            value={preferences.measurementSystem}
+            onChange={(e) => setPreferences({...preferences, measurementSystem: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="metric">Metric (km, °C)</option>
+            <option value="imperial">Imperial (miles, °F)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-gray-900">Auto-Confirm Bookings</p>
+            <p className="text-sm text-gray-500">Automatically confirm bookings without review</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={preferences.autoConfirmBookings}
+              onChange={(e) => setPreferences({...preferences, autoConfirmBookings: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Security Tab */}
+  {activeTab === 'security' && (
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+            <Lock className="w-6 h-6 text-red-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Security Settings</h2>
+            <p className="text-gray-600">Protect your account and data</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Password Change */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+            <div className="space-y-4 max-w-md">
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  placeholder="Current Password"
+                  value={passwords.currentPassword}
+                  onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="New Password"
+                  value={passwords.newPassword}
+                  onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm New Password"
+                  value={passwords.confirmPassword}
+                  onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <button
+                onClick={handlePasswordChange}
+                disabled={saveLoading}
+                className="bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:opacity-50"
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+
+          {/* Security Features */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Security Features</h3>
+            <div className="space-y-4">
+              {Object.entries(security).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {key === 'sessionTimeout' 
+                        ? 'Minutes before automatic logout' 
+                        : `Enable ${key.toLowerCase()} for added security`}
+                    </p>
+                    {key === 'sessionTimeout' && (
+                      <div className="mt-3">
                         <input
-                          type="text"
-                          value={accountData.firstName}
-                          onChange={(e) => setAccountData({...accountData, firstName: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          type="range"
+                          min="5"
+                          max="120"
+                          step="5"
+                          value={value as number}
+                          onChange={(e) => setSecurity({...security, sessionTimeout: parseInt(e.target.value)})}
+                          className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-600"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          value={accountData.lastName}
-                          onChange={(e) => setAccountData({...accountData, lastName: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="email"
-                            value={accountData.email}
-                            onChange={(e) => setAccountData({...accountData, email: e.target.value})}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pl-11"
-                          />
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="tel"
-                            value={accountData.phone}
-                            onChange={(e) => setAccountData({...accountData, phone: e.target.value})}
-                            placeholder="+254 700 000 000"
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pl-11"
-                          />
-                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Actions</h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                              <User className="w-5 h-5 text-red-600" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900">Deactivate Account</p>
-                              <p className="text-sm text-gray-500">Temporarily disable your account</p>
-                            </div>
-                          </div>
-                        </button>
-                        <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <Download className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900">Export Data</p>
-                              <p className="text-sm text-gray-500">Download your personal data</p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Notifications Tab */}
-                {activeTab === 'notifications' && (
-                  <div className="space-y-6">
-                    <div className="bg-white rounded-xl border border-gray-200 p-8">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                          <Bell className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-semibold text-gray-900">Notification Preferences</h2>
-                          <p className="text-gray-600">Choose how you want to be notified</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        {Object.entries(notifications).map(([key, value]) => (
-                          <div key={key} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
-                            <div>
-                              <p className="font-medium text-gray-900 capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                              </p>
-                              <p className="text-sm text-gray-500 mt-1">
-                                Receive notifications about {key.toLowerCase().replace('notifications', '')}
-                              </p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={value}
-                                onChange={(e) => setNotifications({...notifications, [key]: e.target.checked})}
-                                className="sr-only peer"
-                              />
-                              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
-                      <div className="flex items-center gap-3">
-                        <Bell className="w-6 h-6 text-blue-600" />
-                        <div>
-                          <h3 className="font-semibold text-gray-900">Notification Channels</h3>
-                          <p className="text-gray-600 text-sm">Configure how notifications are delivered</p>
-                        </div>
-                      </div>
-                      <div className="grid md:grid-cols-3 gap-4 mt-4">
-                        <div className="bg-white p-4 rounded-lg border border-gray-200">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Mail className="w-5 h-5 text-gray-600" />
-                            <span className="font-medium">Email</span>
-                          </div>
-                          <p className="text-sm text-gray-500">Notifications sent to your email</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-lg border border-gray-200">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Smartphone className="w-5 h-5 text-gray-600" />
-                            <span className="font-medium">Push</span>
-                          </div>
-                          <p className="text-sm text-gray-500">In-app and browser notifications</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-lg border border-gray-200">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Phone className="w-5 h-5 text-gray-600" />
-                            <span className="font-medium">SMS</span>
-                          </div>
-                          <p className="text-sm text-gray-500">Text message notifications</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Privacy Tab */}
-                {activeTab === 'privacy' && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                        <ShieldIcon className="w-6 h-6 text-green-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Privacy Settings</h2>
-                        <p className="text-gray-600">Control your privacy and data</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="font-medium text-gray-900 mb-3">Profile Visibility</h3>
-                        <div className="grid md:grid-cols-3 gap-3">
-                          {[
-                            { value: 'public', label: 'Public', desc: 'Everyone can see your profile' },
-                            { value: 'contacts', label: 'Contacts Only', desc: 'Only your contacts can see' },
-                            { value: 'private', label: 'Private', desc: 'Only you can see your profile' },
-                          ].map((option) => (
-                            <label key={option.value} className="relative">
-                              <input
-                                type="radio"
-                                name="profileVisibility"
-                                value={option.value}
-                                checked={privacy.profileVisibility === option.value}
-                                onChange={(e) => setPrivacy({...privacy, profileVisibility: e.target.value})}
-                                className="sr-only peer"
-                              />
-                              <div className="p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
-                                <div className="font-medium text-gray-900 mb-1">{option.label}</div>
-                                <div className="text-sm text-gray-500">{option.desc}</div>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="font-medium text-gray-900 mb-3">Data Settings</h3>
-                        <div className="space-y-4">
-                          {Object.entries(privacy).filter(([key]) => key !== 'profileVisibility').map(([key, value]) => (
-                            <div key={key} className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-gray-900 capitalize">
-                                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                                </p>
-                                <p className="text-sm text-gray-500">Manage your {key.toLowerCase()} settings</p>
-                              </div>
-                              {typeof value === 'boolean' ? (
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={value}
-                                    onChange={(e) => setPrivacy({...privacy, [key]: e.target.checked})}
-                                    className="sr-only peer"
-                                  />
-                                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                                </label>
-                              ) : (
-                                <select
-                                  value={value as string}
-                                  onChange={(e) => setPrivacy({...privacy, [key]: e.target.value})}
-                                  className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                >
-                                  {key === 'dataRetentionPeriod' && (
-                                    <>
-                                      <option value="30">30 days</option>
-                                      <option value="90">90 days</option>
-                                      <option value="365">1 year</option>
-                                    </>
-                                  )}
-                                </select>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="bg-gray-50 rounded-lg p-4 mt-6">
-                        <div className="flex items-center gap-3">
-                          <Database className="w-5 h-5 text-gray-600" />
-                          <div>
-                            <p className="font-medium text-gray-900">Data Privacy</p>
-                            <p className="text-sm text-gray-500">
-                              Your data is protected by our privacy policy. You can request data deletion at any time.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Preferences Tab */}
-                {activeTab === 'preferences' && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <Car className="w-6 h-6 text-purple-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Preferences</h2>
-                        <p className="text-gray-600">Customize your rental experience</p>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Preferred Vehicle Type
-                        </label>
-                        <select
-                          value={preferences.preferredVehicleType}
-                          onChange={(e) => setPreferences({...preferences, preferredVehicleType: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="SUV">SUV</option>
-                          <option value="Sedan">Sedan</option>
-                          <option value="Hatchback">Hatchback</option>
-                          <option value="Convertible">Convertible</option>
-                          <option value="Luxury">Luxury</option>
-                          <option value="Economy">Economy</option>
-                          <option value="Minivan">Minivan</option>
-                          <option value="Truck">Truck</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Default Rental Duration (days)
-                        </label>
-                        <select
-                          value={preferences.defaultRentalDuration}
-                          onChange={(e) => setPreferences({...preferences, defaultRentalDuration: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="1">1 day</option>
-                          <option value="3">3 days</option>
-                          <option value="7">7 days</option>
-                          <option value="14">14 days</option>
-                          <option value="30">30 days</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Language
-                        </label>
-                        <select
-                          value={preferences.language}
-                          onChange={(e) => setPreferences({...preferences, language: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="en">English</option>
-                          <option value="sw">Swahili</option>
-                          <option value="fr">French</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Currency
-                        </label>
-                        <select
-                          value={preferences.currency}
-                          onChange={(e) => setPreferences({...preferences, currency: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="KES">Kenyan Shilling (KES)</option>
-                          <option value="USD">US Dollar (USD)</option>
-                          <option value="EUR">Euro (EUR)</option>
-                          <option value="GBP">British Pound (GBP)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Theme
-                        </label>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => setPreferences({...preferences, theme: 'light'})}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border ${
-                              preferences.theme === 'light' 
-                                ? 'border-orange-500 bg-orange-50 text-orange-700' 
-                                : 'border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            <Sun className="w-4 h-4" />
-                            Light
-                          </button>
-                          <button
-                            onClick={() => setPreferences({...preferences, theme: 'dark'})}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border ${
-                              preferences.theme === 'dark' 
-                                ? 'border-gray-800 bg-gray-900 text-white' 
-                                : 'border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            <Moon className="w-4 h-4" />
-                            Dark
-                          </button>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Measurement System
-                        </label>
-                        <select
-                          value={preferences.measurementSystem}
-                          onChange={(e) => setPreferences({...preferences, measurementSystem: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="metric">Metric (km, °C)</option>
-                          <option value="imperial">Imperial (miles, °F)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-gray-900">Auto-Confirm Bookings</p>
-                          <p className="text-sm text-gray-500">Automatically confirm bookings without review</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={preferences.autoConfirmBookings}
-                            onChange={(e) => setPreferences({...preferences, autoConfirmBookings: e.target.checked})}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Security Tab */}
-                {activeTab === 'security' && (
-                  <div className="space-y-6">
-                    <div className="bg-white rounded-xl border border-gray-200 p-8">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                          <Lock className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-semibold text-gray-900">Security Settings</h2>
-                          <p className="text-gray-600">Protect your account and data</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-6">
-                        {/* Password Change */}
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
-                          <div className="space-y-4 max-w-md">
-                            <div className="relative">
-                              <input
-                                type={showCurrentPassword ? "text" : "password"}
-                                placeholder="Current Password"
-                                value={passwords.currentPassword}
-                                onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                              >
-                                {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                              </button>
-                            </div>
-                            <div className="relative">
-                              <input
-                                type={showNewPassword ? "text" : "password"}
-                                placeholder="New Password"
-                                value={passwords.newPassword}
-                                onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                              >
-                                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                              </button>
-                            </div>
-                            <div className="relative">
-                              <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Confirm New Password"
-                                value={passwords.confirmPassword}
-                                onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                              >
-                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                              </button>
-                            </div>
-                            <button
-                              onClick={handlePasswordChange}
-                              disabled={saveLoading}
-                              className="bg-gray-900 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:opacity-50"
-                            >
-                              Update Password
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Security Features */}
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4">Security Features</h3>
-                          <div className="space-y-4">
-                            {Object.entries(security).map(([key, value]) => (
-                              <div key={key} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div className="flex-1">
-                                  <p className="font-medium text-gray-900 capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                  </p>
-                                  <p className="text-sm text-gray-500 mt-1">
-                                    {key === 'sessionTimeout' 
-                                      ? 'Minutes before automatic logout' 
-                                      : `Enable ${key.toLowerCase()} for added security`}
-                                  </p>
-                                  {key === 'sessionTimeout' && (
-                                    <div className="mt-3">
-                                      <input
-                                        type="range"
-                                        min="5"
-                                        max="120"
-                                        step="5"
-                                        value={value as number}
-                                        onChange={(e) => setSecurity({...security, sessionTimeout: parseInt(e.target.value)})}
-                                        className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-600"
-                                      />
-                                      <div className="flex justify-between text-xs text-gray-500 mt-2">
-                                        <span>5 min</span>
-                                        <span className="font-medium">{value} min</span>
-                                        <span>120 min</span>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                                {typeof value === 'boolean' && (
-                                  <label className="relative inline-flex items-center cursor-pointer ml-4">
-                                    <input
-                                      type="checkbox"
-                                      checked={value}
-                                      onChange={(e) => setSecurity({...security, [key]: e.target.checked})}
-                                      className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                                  </label>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Two-Factor Setup */}
-                    {security.twoFactorAuth && (
-                      <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl border border-orange-200 p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                          <ShieldCheck className="w-6 h-6 text-orange-600" />
-                          <div>
-                            <h3 className="font-semibold text-gray-900">Two-Factor Authentication</h3>
-                            <p className="text-gray-600 text-sm">Choose your verification method</p>
-                          </div>
-                        </div>
-                        <div className="grid md:grid-cols-3 gap-3">
-                          <label className="relative">
-                            <input
-                              type="radio"
-                              name="twoFactorMethod"
-                              value="sms"
-                              checked={security.twoFactorMethod === 'sms'}
-                              onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
-                              className="sr-only peer"
-                            />
-                            <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
-                              <div className="font-medium text-gray-900 mb-1">SMS</div>
-                              <div className="text-sm text-gray-500">Text message verification</div>
-                            </div>
-                          </label>
-                          <label className="relative">
-                            <input
-                              type="radio"
-                              name="twoFactorMethod"
-                              value="email"
-                              checked={security.twoFactorMethod === 'email'}
-                              onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
-                              className="sr-only peer"
-                            />
-                            <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
-                              <div className="font-medium text-gray-900 mb-1">Email</div>
-                              <div className="text-sm text-gray-500">Email verification</div>
-                            </div>
-                          </label>
-                          <label className="relative">
-                            <input
-                              type="radio"
-                              name="twoFactorMethod"
-                              value="authenticator"
-                              checked={security.twoFactorMethod === 'authenticator'}
-                              onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
-                              className="sr-only peer"
-                            />
-                            <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
-                              <div className="font-medium text-gray-900 mb-1">Authenticator App</div>
-                              <div className="text-sm text-gray-500">Google Authenticator</div>
-                            </div>
-                          </label>
+                        <div className="flex justify-between text-xs text-gray-500 mt-2">
+                          <span>5 min</span>
+                          <span className="font-medium">{value} min</span>
+                          <span>120 min</span>
                         </div>
                       </div>
                     )}
                   </div>
-                )}
+                  {typeof value === 'boolean' && (
+                    <label className="relative inline-flex items-center cursor-pointer ml-4">
+                      <input
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) => setSecurity({...security, [key]: e.target.checked})}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                    </label>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
-                {/* Billing Tab */}
-                {activeTab === 'billing' && (
-                  <div className="bg-white rounded-xl border border-gray-200 p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                        <CreditCard className="w-6 h-6 text-indigo-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Billing & Payment</h2>
-                        <p className="text-gray-600">Manage your payment methods and invoices</p>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Default Payment Method
-                        </label>
-                        <select
-                          value={billing.defaultPaymentMethod}
-                          onChange={(e) => setBilling({...billing, defaultPaymentMethod: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="card">Credit/Debit Card</option>
-                          <option value="mpesa">M-Pesa</option>
-                          <option value="paypal">PayPal</option>
-                          <option value="bank">Bank Transfer</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Invoice Delivery
-                        </label>
-                        <select
-                          value={billing.invoiceDelivery}
-                          onChange={(e) => setBilling({...billing, invoiceDelivery: e.target.value})}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        >
-                          <option value="email">Email Only</option>
-                          <option value="email_sms">Email & SMS</option>
-                          <option value="postal">Postal Mail</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-gray-900">Save Payment Methods</p>
-                          <p className="text-sm text-gray-500">Securely save your payment details for faster checkout</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={billing.savePaymentMethods}
-                            onChange={(e) => setBilling({...billing, savePaymentMethods: e.target.checked})}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                        </label>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-gray-900">Auto-Renew Membership</p>
-                          <p className="text-sm text-gray-500">Automatically renew your membership when it expires</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={billing.autoRenewMembership}
-                            onChange={(e) => setBilling({...billing, autoRenewMembership: e.target.checked})}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                        </label>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-gray-900">Tax Receipts</p>
-                          <p className="text-sm text-gray-500">Receive tax receipts for business expenses</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={billing.taxReceipts}
-                            onChange={(e) => setBilling({...billing, taxReceipts: e.target.checked})}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
+      {/* Two-Factor Setup */}
+      {security.twoFactorAuth && (
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl border border-orange-200 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <ShieldCheck className="w-6 h-6 text-orange-600" />
+            <div>
+              <h3 className="font-semibold text-gray-900">Two-Factor Authentication</h3>
+              <p className="text-gray-600 text-sm">Choose your verification method</p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-3">
+            <label className="relative">
+              <input
+                type="radio"
+                name="twoFactorMethod"
+                value="sms"
+                checked={security.twoFactorMethod === 'sms'}
+                onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
+                className="sr-only peer"
+              />
+              <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
+                <div className="font-medium text-gray-900 mb-1">SMS</div>
+                <div className="text-sm text-gray-500">Text message verification</div>
               </div>
+            </label>
+            <label className="relative">
+              <input
+                type="radio"
+                name="twoFactorMethod"
+                value="email"
+                checked={security.twoFactorMethod === 'email'}
+                onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
+                className="sr-only peer"
+              />
+              <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
+                <div className="font-medium text-gray-900 mb-1">Email</div>
+                <div className="text-sm text-gray-500">Email verification</div>
+              </div>
+            </label>
+            <label className="relative">
+              <input
+                type="radio"
+                name="twoFactorMethod"
+                value="authenticator"
+                checked={security.twoFactorMethod === 'authenticator'}
+                onChange={(e) => setSecurity({...security, twoFactorMethod: e.target.value})}
+                className="sr-only peer"
+              />
+              <div className="p-4 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-colors">
+                <div className="font-medium text-gray-900 mb-1">Authenticator App</div>
+                <div className="text-sm text-gray-500">Google Authenticator</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Billing Tab */}
+  {activeTab === 'billing' && (
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+          <CreditCard className="w-6 h-6 text-indigo-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Billing & Payment</h2>
+          <p className="text-gray-600">Manage your payment methods and invoices</p>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Default Payment Method
+          </label>
+          <select
+            value={billing.defaultPaymentMethod}
+            onChange={(e) => setBilling({...billing, defaultPaymentMethod: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="card">Credit/Debit Card</option>
+            <option value="mpesa">M-Pesa</option>
+            <option value="paypal">PayPal</option>
+            <option value="bank">Bank Transfer</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Invoice Delivery
+          </label>
+          <select
+            value={billing.invoiceDelivery}
+            onChange={(e) => setBilling({...billing, invoiceDelivery: e.target.value})}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="email">Email Only</option>
+            <option value="email_sms">Email & SMS</option>
+            <option value="postal">Postal Mail</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-gray-900">Save Payment Methods</p>
+            <p className="text-sm text-gray-500">Securely save your payment details for faster checkout</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={billing.savePaymentMethods}
+              onChange={(e) => setBilling({...billing, savePaymentMethods: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+          </label>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-gray-900">Auto-Renew Membership</p>
+            <p className="text-sm text-gray-500">Automatically renew your membership when it expires</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={billing.autoRenewMembership}
+              onChange={(e) => setBilling({...billing, autoRenewMembership: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+          </label>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-gray-900">Tax Receipts</p>
+            <p className="text-sm text-gray-500">Receive tax receipts for business expenses</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={billing.taxReceipts}
+              onChange={(e) => setBilling({...billing, taxReceipts: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+          </label>
+        </div>
+      </div>
+
+      {/* Payment Methods Section */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Saved Payment Methods</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-5 h-5 text-gray-600" />
+              <div>
+                <p className="font-medium text-gray-900">•••• •••• •••• 4242</p>
+                <p className="text-sm text-gray-500">Expires 12/25</p>
+              </div>
+            </div>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Default</span>
+          </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Smartphone className="w-5 h-5 text-gray-600" />
+              <div>
+                <p className="font-medium text-gray-900">M-Pesa</p>
+                <p className="text-sm text-gray-500">+254 712 345 678</p>
+              </div>
+            </div>
+            <button className="text-orange-600 text-sm font-medium hover:text-orange-700">Set as Default</button>
+          </div>
+          <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors font-medium">
+            + Add New Payment Method
+          </button>
+        </div>
+      </div>
+
+      {/* Billing History */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
+          <button className="text-orange-600 text-sm font-medium hover:text-orange-700">View All</button>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+              <div className="flex items-center gap-3">
+               
+                <div>
+                  <p className="font-medium text-gray-900">Invoice #{new Date().getFullYear()}-00{i}</p>
+                  <p className="text-sm text-gray-500">Mar {i}, 2024</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="font-medium text-gray-900">KES 15,000</span>
+                <Download className="w-4 h-4 text-gray-400 hover:text-orange-600 cursor-pointer" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+</div>
             )}
           </div>
         </div>

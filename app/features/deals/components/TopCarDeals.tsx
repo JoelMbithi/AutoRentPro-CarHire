@@ -2,83 +2,111 @@
 
 import React, { useState } from "react";
 import {
-  SiHonda,
-  SiAudi,
-  SiNissan,
-  SiMazda,
-  SiToyota,
-  SiBmw,
-  SiMercedes,
-  SiVolkswagen,
-  SiFord,
-  SiHyundai,
-  SiKia,
+  SiHonda, SiAudi, SiNissan, SiMazda, SiToyota,
+  SiBmw, SiMercedes, SiVolkswagen, SiFord, SiHyundai, SiKia,
 } from "react-icons/si";
 import { FaCar } from "react-icons/fa";
 
 const mainBrands = [
-  { name: "Honda", icon: <SiHonda className="text-2xl" /> },
-  { name: "Audi", icon: <SiAudi className="text-2xl" /> },
-  { name: "Nissan", icon: <SiNissan className="text-2xl" /> },
-  { name: "Mazda", icon: <SiMazda className="text-2xl" /> },
-  { name: "Toyota", icon: <SiToyota className="text-2xl" /> },
+  { name: "Toyota",   icon: <SiToyota   className="w-5 h-5" /> },
+  { name: "Honda",    icon: <SiHonda    className="w-5 h-5" /> },
+  { name: "BMW",      icon: <SiBmw      className="w-5 h-5" /> },
+  { name: "Audi",     icon: <SiAudi     className="w-5 h-5" /> },
+  { name: "Mercedes", icon: <SiMercedes className="w-5 h-5" /> },
+  { name: "Nissan",   icon: <SiNissan   className="w-5 h-5" /> },
 ];
 
 const moreBrands = [
-  { name: "BMW", icon: <SiBmw className="text-2xl" /> },
-  { name: "Mercedes", icon: <SiMercedes className="text-2xl" /> },
-  { name: "Volkswagen", icon: <SiVolkswagen className="text-2xl" /> },
-  { name: "Ford", icon: <SiFord className="text-2xl" /> },
-  { name: "Hyundai", icon: <SiHyundai className="text-2xl" /> },
-  { name: "Kia", icon: <SiKia className="text-2xl" /> },
-  { name: "Lexus", icon: <FaCar className="text-2xl" /> },
+  { name: "Mazda",      icon: <SiMazda      className="w-5 h-5" /> },
+  { name: "Volkswagen", icon: <SiVolkswagen className="w-5 h-5" /> },
+  { name: "Ford",       icon: <SiFord       className="w-5 h-5" /> },
+  { name: "Hyundai",    icon: <SiHyundai    className="w-5 h-5" /> },
+  { name: "Kia",        icon: <SiKia        className="w-5 h-5" /> },
+  { name: "Lexus",      icon: <FaCar        className="w-5 h-5" /> },
 ];
 
 const TopCarDeals = () => {
   const [showMore, setShowMore] = useState(false);
+  const [active, setActive]     = useState<string | null>(null);
 
-  const displayedBrands = showMore
-    ? [...mainBrands, ...moreBrands]
-    : mainBrands;
+  const displayed = showMore ? [...mainBrands, ...moreBrands] : mainBrands;
 
   return (
-    <div className="flex flex-col gap-6 px-8 py-10 items-center justify-center">
-      <h1 className="text-orange-600 text-lg font-semibold tracking-wide">
-        Top Gear
-      </h1>
-      <h2 className="text-3xl sm:text-4xl text-black font-bold text-center leading-tight">
-        Explore Our Top Deals From <br /> Top-Rated Dealers
-      </h2>
+    <div className="flex flex-col px-8 md:px-16 py-16 gap-10 max-w-6xl mx-auto">
 
-      <div className="flex flex-row gap-4 flex-wrap justify-center mt-4 transition-all">
-        {displayedBrands.map((brand) => (
-          <div
-            key={brand.name}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-orange-600 
-            shadow-md w-32 h-14 rounded-md border hover:border-orange-500 
-            transition-all cursor-pointer hover:shadow-lg px-3 
-            text-black hover:text-white"
-          >
-            <div className="flex items-center justify-center p-2">
-              {brand.icon}
-            </div>
-            <h1 className="font-semibold text-sm">{brand.name}</h1>
-          </div>
-        ))}
-
-        {/* Toggle More Button */}
-        <div
-          onClick={() => setShowMore(!showMore)}
-          className="flex items-center justify-center gap-1 bg-orange-600 
-          text-white shadow-md w-32 h-14 rounded-md cursor-pointer 
-          hover:bg-orange-700 transition-all px-3"
-        >
-          <h1 className="text-sm font-semibold">
-            {showMore ? "Show Less" : "Explore"}
-          </h1>
-          <span className="text-xl font-bold">{showMore ? "-" : "20+"}</span>
+      {/* Header */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span className="block w-8 h-px bg-orange-600" />
+          <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">
+            Top Gear
+          </span>
         </div>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+          Top deals from <span className="text-orange-600 ">top-rated</span> dealers.
+        </h2>
+        <p className="text-sm text-gray-400 max-w-md leading-relaxed">
+          Browse by brand and find certified vehicles from dealers you can trust across Kenya.
+        </p>
       </div>
+
+      {/* Brand grid */}
+      <div className="flex flex-col gap-0 border border-gray-200">
+
+        {/* brand rows */}
+        <div className="flex flex-wrap  border-b border-gray-200">
+          {displayed.map((brand) => (
+            <div
+              key={brand.name}
+              onClick={() => setActive(n => n === brand.name ? null : brand.name)}
+              className={`flex items-center gap-3 px-6 py-4 border-r border-gray-200 
+                cursor-pointer transition-colors duration-200 group
+                ${active === brand.name
+                  ? 'bg-orange-600 text-white border-orange-600'
+                  : 'bg-white text-gray-400 hover:bg-orange-50 hover:text-gray-900'
+                }`}
+            >
+              <span className={`transition-colors duration-200
+                ${active === brand.name ? 'text-white' : 'text-orange-600 group-hover:text-orange-500'}`}>
+                {brand.icon}
+              </span>
+              <span className={`text-sm font-semibold transition-colors duration-200
+                ${active === brand.name ? 'text-white' : 'text-gray-600 group-hover:text-gray-900'}`}>
+                {brand.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* footer bar */}
+        <div className="flex items-center justify-between px-6 py-4 bg-gray-50">
+          <span className="text- text-gray-400">
+            {active
+              ? <><span className="text-gray-700 text-lg font-semibold">{active}</span> — browse available listings</>
+              : 'Select a brand to filter listings'
+            }
+          </span>
+          <div className="flex items-center gap-3">
+            {active && (
+              <button
+                onClick={() => setActive(null)}
+                className="text-xs text-gray-400 hover:text-orange-600 transition-colors duration-200 underline-offset-2 underline"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              onClick={() => setShowMore(s => !s)}
+              className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold px-4 py-2 transition-colors duration-200"
+            >
+              {showMore ? 'Show less' : 'Show all brands'}
+              <span className="font-bold">{showMore ? '−' : '20+'}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   );
 };

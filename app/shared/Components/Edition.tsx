@@ -1,224 +1,220 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+const features = [
+  { n: "01", title: "Award Winning",   desc: "5-time winner of 'Best Luxury Rental Service' with 50,000+ satisfied customers worldwide."     },
+  { n: "02", title: "Fully Insured",   desc: "Comprehensive coverage, zero deductibles, and 24/7 roadside assistance on every booking."       },
+  { n: "03", title: "Instant Booking", desc: "Reserve your vehicle in under 2 minutes with our streamlined digital process."                   },
+  { n: "04", title: "Global Network",  desc: "Pick up and drop off at 200+ locations across 25 countries."                                     },
+];
+
+const promises = [
+  { title: "Premium Maintenance",    desc: "Every vehicle passes a 150-point inspection before each rental, maintained to manufacturer standards." },
+  { title: "Personalized Concierge", desc: "Dedicated account managers for corporate clients. We remember your preferences every time."           },
+  { title: "Flexible Cancellation",  desc: "Free cancellation up to 24 hours before pickup. Completely transparent pricing, no surprises."       },
+  { title: "Latest Technology",      desc: "GPS, premium sound, 360° cameras, and collision avoidance systems across the entire fleet."           },
+];
+
+const stats = [
+  { value: "98%",  label: "Satisfaction"  },
+  { value: "50K+", label: "Customers"     },
+  { value: "24/7", label: "Support"       },
+  { value: "200+", label: "Vehicles"      },
+];
+
+const services = [
+  { n: "01", title: "Luxury Fleet",       desc: "Premium vehicles from sleek sedans to powerful SUVs — meticulously maintained for your comfort." },
+  { n: "02", title: "Unmatched Service",  desc: "White-glove attention from booking to return. Every detail handled perfectly."                    },
+  { n: "03", title: "Flexible Plans",     desc: "Daily, weekly, or monthly rentals. No hidden fees, comprehensive insurance included."             },
+  { n: "04", title: "Nationwide Cover",   desc: "Multiple pickup and drop-off points across the country for business or leisure."                  },
+];
+
 const Edition = () => {
   return (
-    <>
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in-left {
-          from { opacity: 0; transform: translateX(-50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fade-in-right {
-          from { opacity: 0; transform: translateX(50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-fade-in-up { animation: fade-in-up 1s ease-out forwards; }
-        .animate-fade-in-left { animation: fade-in-left 1s ease-out forwards; }
-        .animate-fade-in-right { animation: fade-in-right 1s ease-out forwards; }
-        .animation-delay-300 { animation-delay: 300ms; }
-        .animation-delay-400 { animation-delay: 400ms; }
-        .animation-delay-500 { animation-delay: 500ms; }
-        .animation-delay-600 { animation-delay: 600ms; }
-      `}</style>
+    <div className="flex flex-col w-full">
 
+      {/* ── HERO — your bg image, kept exactly ── */}
       <div
-        className="w-full min-h-[200vh] bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center text-white px-6 py-20 relative overflow-hidden"
-        style={{ backgroundImage: "url('/display.png')" }}
+        className="flex flex-row items-center justify-center px-12 "
       >
-        {/* Background Overlay */}
-        <div className="absolute inset-0 bg-black/40 z-0"></div>
-        
-        {/* Main Hero Section */}
-        <div className="text-center z-10 mb-20 transition-all duration-700 hover:scale-105">
-          <h1 className="text-4xl sm:text-6xl font-bold drop-shadow-lg text-center mb-6 animate-fade-in-up">
-              AutoRent Pro Car Rental Experience
-          </h1>
-          <p className="text-lg sm:text-xl mt-4 max-w-2xl text-center drop-shadow-md mx-auto opacity-0 animate-fade-in-up animation-delay-300">
-            Explore our luxury, comfort and performance cars — ready for your next journey.
-          </p>
-          <button className="mt-8 bg-orange-600 hover:bg-orange-700 px-8 py-3 rounded-lg font-semibold shadow-lg transform hover:scale-110 transition-all duration-300 opacity-0 animate-fade-in-up animation-delay-500">
-           <Link href={'/vehicles'}> Explore Now</Link>
-          </button>
-        </div>
-
-        {/* Grid Layout for Multiple Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto z-10 w-full">
-          
-          {/* Section 1 - Top Left */}
-          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-left">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-               Luxury Fleet
-            </h2>
-            <p className="text-gray-200 text-lg leading-relaxed">
-              Discover our exclusive collection of premium vehicles, from sleek sedans to powerful SUVs. 
-              Each car is meticulously maintained and equipped with the latest amenities for your comfort.
-            </p>
-          </div>
-
-          {/* Section 2 - Top Right */}
-          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-right">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-               Unmatched Service
-            </h2>
-            <p className="text-gray-200 text-lg leading-relaxed">
-              Experience white-glove service with personalized attention. Our dedicated team ensures 
-              every detail is perfect, from delivery to return, making your rental experience seamless.
-            </p>
-          </div>
-
-          {/* Section 3 - Bottom Left */}
-          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-left animation-delay-400">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-              
-               Flexible Plans
-            </h2>
-            <p className="text-gray-200 text-lg leading-relaxed">
-              Choose from daily, weekly, or monthly rental options tailored to your needs. 
-              Competitive pricing with no hidden fees and comprehensive insurance coverage included.
-            </p>
-          </div>
-
-          {/* Section 4 - Bottom Right */}
-          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-right animation-delay-400">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-orange-400 drop-shadow-md">
-               Nationwide Coverage
-            </h2>
-            <p className="text-gray-200 text-lg leading-relaxed">
-              Pick up and drop off at multiple locations across the country. 
-              Perfect for business trips, vacations, or special occasions wherever you go.
-            </p>
-          </div>
-        </div>
-
-        {/* Additional Center Section */}
-        <div className="mt-16 text-center z-10 max-w-6xl mx-auto bg-gradient-to-r from-orange-600/20 via-red-600/20 to-purple-600/20 p-10 rounded-3xl border border-orange-400/30 backdrop-blur-sm transition-all duration-700 hover:scale-[1.02] opacity-0 animate-fade-in-up animation-delay-600">
-  <h2 className="text-3xl sm:text-5xl font-bold mb-8 text-white drop-shadow-lg bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-    Why Choose AutoRentPro?
-  </h2>
   
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    {/* Feature 1 */}
-    <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3"></div>
-      <h3 className="text-xl font-bold text-orange-300 mb-2">Award Winning</h3>
-      <p className="text-gray-200 text-sm">
-        5-time winner of "Best Luxury Rental Service" with 50,000+ satisfied customers
-      </p>
-    </div>
 
-    {/* Feature 2 */}
-    <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3"></div>
-      <h3 className="text-xl font-bold text-orange-300 mb-2">Fully Insured</h3>
-      <p className="text-gray-200 text-sm">
-        Comprehensive coverage with zero deductibles and 24/7 roadside assistance
-      </p>
-    </div>
+        <div className="flex flex-col justify-center items-center text-center z-10 max-w-6xl">
 
-    {/* Feature 3 */}
-    <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3"></div>
-      <h3 className="text-xl font-bold text-orange-300 mb-2">Instant Booking</h3>
-      <p className="text-gray-200 text-sm">
-        Reserve your dream car in 2 minutes with our streamlined digital process
-      </p>
-    </div>
+          {/* eyebrow */}
+          <div className="flex items-center justify-center gap-3 mb-">
+            <span className="block w-8 h-px bg-orange-500" />
+            <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">AutoRent Pro</span>
+            <span className="block w-8 h-px bg-orange-500" />
+          </div>
 
-    {/* Feature 4 */}
-    <div className="bg-black/20 p-4 rounded-xl border border-white/10 hover:border-orange-400/50 transition-all duration-300">
-      <div className="text-3xl mb-3"></div>
-      <h3 className="text-xl font-bold text-orange-300 mb-2">Global Network</h3>
-      <p className="text-gray-200 text-sm">
-        Pick up and drop off at 200+ locations across 25 countries worldwide
-      </p>
-    </div>
-  </div>
+          <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
+            Car Rental<br />
+            <span className="text-orange-600">Experience.</span>
+          </h1>
 
-  <div className="text-left space-y-6">
-    <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md">
-      With <span className="text-orange-300 font-semibold">over a decade of excellence</span> in   AutoRent Pro car rentals, we've perfected the art of luxury mobility. Our commitment goes beyond just providing vehicles - we deliver <span className="text-orange-300 font-semibold">unforgettable experiences</span>.
-    </p>
+          <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto mb-10 leading-relaxed">
+            Luxury, comfort, and performance vehicles — ready for your next journey across Kenya and beyond.
+          </p>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-      <div className="space-y-3">
-        <h4 className="text-lg font-bold text-orange-300 flex items-center">
-          <span className="mr-2"></span> Premium Vehicle Maintenance
-        </h4>
-        <p className="text-gray-200 text-sm">
-          Each vehicle undergoes 150-point inspection before every rental. We maintain our fleet to manufacturer standards with detailed service records.
-        </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/vehicles"
+              className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-8 py-4 transition-colors duration-200 tracking-wide"
+            >
+              Explore Fleet
+            </Link>
+            <Link
+              href="/about"
+              className="border border-gray-400 hover:border-orange-600 text-gray-400 hover:text-orange-600 text-sm font-semibold px-8 py-4 transition-all duration-200 tracking-wide"
+            >
+              Learn More
+            </Link>
+          </div>
+        </div>
 
-        <h4 className="text-lg font-bold text-orange-300 flex items-center">
-          <span className="mr-2"></span> Personalized Concierge
-        </h4>
-        <p className="text-gray-200 text-sm">
-          Dedicated account manager for corporate clients and VIP service for all customers. We remember your preferences for repeat bookings.
-        </p>
+        <div className="hidden md:flex w-200 h-100">
+          <Image 
+                      src="/GPS.jpg" 
+                      alt="discussion" 
+                      width={600} 
+                      height={200} 
+                      className="rounded"
+                    />
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <h4 className="text-lg font-bold text-orange-300 flex items-center">
-          <span className="mr-2"></span> Flexible Cancellation
-        </h4>
-        <p className="text-gray-200 text-sm">
-          Free cancellation up to 24 hours before pickup. No hidden fees or surprise charges - our pricing is completely transparent.
-        </p>
+      {/* ── SERVICES ── */}
+      <div className="flex flex-col px-8 md:px-16 py-16 gap-10 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="block w-8 h-px bg-orange-600" />
+            <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">What We Offer</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+            Built for every <span className="text-orange-600">journey.</span>
+          </h2>
+        </div>
 
-        <h4 className="text-lg font-bold text-orange-300 flex items-center">
-          <span className="mr-2"></span> Latest Technology
-        </h4>
-        <p className="text-gray-200 text-sm">
-          All vehicles equipped with GPS, premium sound systems, and the latest safety features including 360° cameras and collision avoidance.
-        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 border border-gray-200">
+          {services.map((s, i) => (
+            <div
+              key={i}
+              className="flex flex-col gap-3 p-8 border-b border-r border-gray-200 hover:bg-orange-50 transition-colors duration-200 group"
+            >
+              <span className="text-xs font-semibold text-gray-400 tracking-widest group-hover:text-orange-500 transition-colors duration-200">{s.n}</span>
+              <h3 className="text-lg font-bold text-gray-900">{s.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+              <span className="block w-0 group-hover:w-12 h-px bg-orange-600 transition-all duration-300" />
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* ── WHY US ── */}
+      <div className="flex flex-col px-8 md:px-16 py-16 gap-10 bg-gray-50 w-full">
+        <div className="max-w-6xl mx-auto w-full flex flex-col gap-10">
+
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <span className="block w-8 h-px bg-orange-600" />
+              <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">Why AutoRentPro</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+              The <span className="text-orange-600">difference</span> you'll feel.
+            </h2>
+          </div>
+
+          {/* feature grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-gray-200">
+            {features.map((f, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-3 p-6 border-b border-r border-gray-200 hover:bg-white transition-colors duration-200 group"
+              >
+                <span className="text-xs font-semibold text-gray-400 tracking-widest group-hover:text-orange-500 transition-colors duration-200">{f.n}</span>
+                <h3 className="text-base font-bold text-gray-900">{f.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 borde border-gray-200">
+            {stats.map((s, i) => (
+              <div key={i} className="flex flex-col items-center justify-center gap-1 py-8 border-r border-gray-200 last:border-r-0">
+                <span className="text-3xl font-extrabold text-orange-600 leading-none">{s.value}</span>
+                <span className="text-xs text-gray-400 tracking-widest uppercase">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PROMISE ── */}
+      <div className="flex flex-col px-8 md:px-16 py-16 gap-10 max-w-6xl mx-auto w-full">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="block w-8 h-px bg-orange-600" />
+            <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">Our Promise</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+            Details that <span className="text-orange-600">matter.</span>
+          </h2>
+        </div>
+
+        {/* promise grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 border border-gray-200">
+          {promises.map((p, i) => (
+            <div
+              key={i}
+              className="flex flex-col gap-3 p-8 border-b border-r border-gray-200 hover:bg-orange-50 transition-colors duration-200 group"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-600 flex-shrink-0" />
+                <h3 className="text-base font-bold text-gray-900">{p.title}</h3>
+              </div>
+              <p className="text-sm text-gray-500 leading-relaxed">{p.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* quote */}
+        <div className="border border-gray-200 p-10">
+          <span className="block text-xs text-orange-600 font-semibold tracking-widest uppercase mb-4">✦ The AutoRentPro Difference</span>
+          <p className="text-xs md:text-xl text-gray-500 font-medium italic leading-relaxed max-w-2xl">
+            "We don't just rent cars — we deliver{" "}
+            <span className="text-gray-700 not-italic font-semibold">confidence, comfort, and class.</span>{" "}
+            From the moment you book until you return the keys."
+          </p>
+        </div>
+
+        {/* CTA */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 borde border-gray-200 p-8">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-xl font-bold text-gray-900">Ready to <span className="text-orange-600 ">drive?</span></h3>
+            <p className="text-sm text-gray-500">Book a consultation or browse our full fleet today.</p>
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            <Link
+              href="/contact"
+              className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-6 py-3 transition-colors duration-200 tracking-wide"
+            >
+              Book Consultation
+            </Link>
+            <Link
+              href="/vehicles"
+              className="border border-gray-300 hover:border-orange-600 text-gray-500 hover:text-orange-600 text-sm font-semibold px-6 py-3 transition-all duration-200 tracking-wide"
+            >
+              Browse Fleet
+            </Link>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <div className="bg-black/30 p-6 rounded-xl border border-orange-500/20 mt-6">
-      <h4 className="text-2xl font-bold text-white mb-4 text-center">Our Promise</h4>
-      <p className="text-gray-100 text-lg text-center italic">
-        "We don't just rent cars - we deliver confidence, comfort, and class. From the moment you book until you return the keys, 
-        experience the <span className="text-orange-300 font-semibold">AutoRentPro difference</span> that keeps our customers coming back year after year."
-      </p>
-    </div>
-
-    {/* Stats Section */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-      <div className="text-center">
-        <div className="text-2xl font-bold text-orange-400">98%</div>
-        <div className="text-gray-300 text-sm">Customer Satisfaction</div>
-      </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-orange-400">50K+</div>
-        <div className="text-gray-300 text-sm">Happy Customers</div>
-      </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-orange-400">24/7</div>
-        <div className="text-gray-300 text-sm">Support Available</div>
-      </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-orange-400">200+</div>
-        <div className="text-gray-300 text-sm">Luxury Vehicles</div>
-      </div>
-    </div>
-  </div>
-
-  <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-    <button className="bg-orange-600 hover:bg-orange-700 px-8 py-3 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
-      📞 Book Consultation
-    </button>
-    <button className="border border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white px-8 py-3 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
-       Read Reviews
-    </button>
-  </div>
-</div>
-      </div>
-    </>
   );
 };
 

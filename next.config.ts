@@ -1,12 +1,11 @@
-import type { NextConfig } from "next";
+// next.config.js
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Replace the old experimental key
   serverExternalPackages: ['@prisma/client'],
 
-  // Custom webpack configuration for TypeScript files
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Handle .ts imports from app/generated
+  webpack: (config, { defaultLoaders }) => {
+    // Support .ts and .tsx
     config.resolve.extensions.push('.ts', '.tsx');
 
     // Add rule for Prisma generated TS files
@@ -17,6 +16,15 @@ const nextConfig: NextConfig = {
     });
 
     return config;
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/api/dashboard/:path*',
+        destination: '/features/Admin/Dashboard/api/dashboard/:path*',
+      },
+    ];
   },
 };
 

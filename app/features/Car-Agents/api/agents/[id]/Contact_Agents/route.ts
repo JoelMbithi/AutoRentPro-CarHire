@@ -51,7 +51,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     try {
       // Send email to the agent
       await sendAgentEmail({
-       agentId: agent.id,  
+        agentId: agent.id,  // Fixed: removed extra spaces
         agentName: agent.name,
         customerName: name,
         customerEmail: email,

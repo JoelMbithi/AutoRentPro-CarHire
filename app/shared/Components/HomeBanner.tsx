@@ -4,37 +4,71 @@ import React from 'react'
 
 const LandingBanner = () => {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center px- py-16 mx-auto gap-8">
+    <div className="flex flex-col md:flex-row justify-betwee items-center py-16 mx-auto gap-0">
       
-      {/* Left Section - Textual Content */}
-      <div className="flex flex-col gap-4 justify-center px-8 max-w-xl">
-        <h1 className="font-bold text-5xl md:text-6xl text-black">
-          Looking to save more <br /> on your rental car?
+      {/* Left Section - Text */}
+      <div className="flex flex-col gap-5 justify-center px-8 md:px-16 max-w-xl">
+
+        {/* eyebrow */}
+        <div className="flex items-center gap-3">
+          <span className="block w-8 h-px bg-orange-600" />
+          <span className="text-orange-600 text-xs font-semibold tracking-widest uppercase">
+            Kenya's Trusted Car Rental
+          </span>
+        </div>
+
+        <h1 className="font-bold text-5xl md:text-6xl text-black leading-tight">
+          The right car,<br />
+          at the right <span className="text-orange-600">price.</span>
         </h1>
-        <p className="text-xs md:text-xl text-gray-700">
-          Discover AutoRentPro car rental options in Kenya with Rent a Car.
-          <br /> Select from a range of car options and local specials.
+
+        <p className="text-sm md:text-lg text-gray-500 leading-relaxed max-w-sm">
+          Browse AutoRentPro's growing fleet across Kenya — daily, weekly, 
+          or monthly. No hidden fees, no surprises.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <Link href={"/vehicles"} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-2 py-4 rounded-lg transition-colors duration-300 shadow-lg">
-            Find Your Perfect Car
+
+        {/* trust line */}
+        <div className="flex items-center gap-6 text-xs text-gray-400 font-medium">
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+            Fully insured
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+            Free cancellation
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+            24/7 support
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+          <Link
+            href="/vehicles"
+            className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-8 py-4 rounded-none transition-colors duration-300 shadow-md tracking-wide text-center"
+          >
+            Find Your Car
           </Link>
-          <button className="border border-gray-300 hover:border-orange-600 text-gray-700 hover:text-orange-600 font-semibold px-8 py-4 rounded-lg transition-all duration-300">
-            Learn More
+          <button className="border border-gray-200 hover:border-orange-600 text-gray-500 hover:text-orange-600 text-sm font-semibold px-8 py-4 rounded-none transition-all duration-300 tracking-wide">
+            How It Works
           </button>
         </div>
       </div>
 
-      {/* Right Section - Full Width Image */}
-      <div className="relative w-full  h-80 md:h-120 ">
+      {/* Right Section - Image */}
+      <div className="hidden md:flex relative w-200 h-80 md:h-[520px] md:flex-1">
         <Image
           src="/Homebanner.png"
-          alt="AutoRentPro car"
+          alt="AutoRentPro car rental Kenya"
           fill
           style={{ objectFit: 'cover' }}
           priority
         />
+        {/* subtle left fade blend */}
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent pointer-events-none hidden md:block" />
       </div>
+
     </div>
   )
 }

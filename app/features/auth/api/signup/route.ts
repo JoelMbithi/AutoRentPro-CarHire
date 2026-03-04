@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         drivingLicense,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         address,
+         role: "CUSTOMER",
         userProfile: {
           create: {}
         }

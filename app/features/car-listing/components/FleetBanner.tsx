@@ -36,17 +36,17 @@ const FleetBanner = () => {
           Find Your Dream Car
         </h1>
         
-        <div className='w-16 h-1 bg-orange-500 mb-4 mx-auto lg:mx-0 rounded-full'></div>
+        <div className='w-16 h-1 bg-orange-600 mb-4 mx-auto lg:mx-0 rounded-md'></div>
         
         <p className='text-base sm:text-lg text-gray-200 leading-relaxed'>
-          Our <span className='text-orange-400 font-semibold'>AutoRentPro</span> experts inspect the car so you get complete satisfaction and peace.
+          Our <span className='text-orange-600 font-semibold'>AutoRentPro</span> experts inspect the car so you get complete satisfaction and peace.
         </p>
       </div>
 
       {/* Right Side Search Form */}
-      <div className='bg-white rounded-xl shadow-xl p-6 z-10 w-full max-w-sm'>
+      <div className='bg-white/40 backdrop-blur-sm rounded-xl shadow-xl p-6 z-10 w-full max-w-sm'>
         <div className='text-center mb-4'>
-          <h1 className='text-xl font-bold text-gray-900'>
+          <h1 className='text-xl font-bold text-white'>
             <span className='text-orange-600'>5000</span> cars to hire
           </h1>
         </div>
@@ -54,23 +54,23 @@ const FleetBanner = () => {
         <form onSubmit={handleSearch} className='space-y-4'>
           {/* Car Model */}
           <div className='space-y-2'>
-            <h1 className='text-black font-semibold text-sm'>Car Model</h1>
+            <h1 className='text-white font-semibold text-sm'>Car Model</h1>
             <input 
               type="text" 
               placeholder='Search a car model' 
               value={carModel}
               onChange={(e) => setCarModel(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm'
+              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm'
             />
           </div>
 
           {/* Category */}
           <div className='space-y-2'>
-            <h1 className='text-black font-semibold text-sm'>Category</h1>
+            <h1 className='text-white font-semibold text-sm'>Category</h1>
             <select 
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm bg-white'
+              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm bg-white'
             >
               <option value="">Select category</option>
               <option value="luxury">Luxury</option>

@@ -1,522 +1,450 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { FaGasPump, FaUserFriends, FaCog, FaTimes, FaMobileAlt } from "react-icons/fa";
 import { IoSpeedometer } from "react-icons/io5";
 import { CarProps } from '@/app/features/car-listing/types';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type PaymentStep = 'details' | 'payment' | 'confirmation';
+
 interface CarRentPopUpProps {
   showPopup: boolean;
   selectedCar: CarProps | null;
   closePopup: () => void;
+  user?: { id: number; name?: string };
 }
 
-const CarRentPopUp: React.FC<CarRentPopUpProps> = ({ 
-  showPopup, 
-  selectedCar, 
-  closePopup 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const parsePrice = (price: string | number): number => {
+  if (typeof price === 'number') return price;
+  const cleaned = price.replace(/[^\d.]/g, '');
+  return parseFloat(cleaned) || 0;
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.startsWith('0'))        return '254' + cleaned.slice(1);
+  if (cleaned.startsWith('254'))      return cleaned;
+  if (cleaned.startsWith('+254'))     return cleaned.slice(1);
+  if (cleaned.length === 9)           return '254' + cleaned;
+  return cleaned;
+};
+
+const addDays = (dateStr: string, days: number): string => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split('T')[0];
+};
+
+const formatDate = (dateStr: string): string =>
+  dateStr ? new Date(dateStr).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+const todayISO = (): string => new Date().toISOString().split('T')[0];
+
+const KENYAN_PHONE_REGEX = /^(?:254|\+254|0)?(7[0-9]{8})$/;
+const POLL_INTERVAL_MS   = 2500;
+const MAX_POLL_ATTEMPTS  = 36; // ~90 seconds
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const Spinner: React.FC = () => (
+  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+);
+
+interface SummaryRowProps {
+  label: string;
+  value: React.ReactNode;
+  bold?: boolean;
+  accent?: boolean;
+}
+
+const SummaryRow: React.FC<SummaryRowProps> = ({ label, value, bold, accent }) => (
+  <div className={`flex justify-between ${bold ? 'font-semibold text-gray-900 pt-2 border-t border-gray-200 mt-1' : 'text-gray-600'} text-sm`}>
+    <span>{label}</span>
+    <span className={accent ? 'text-green-600 font-semibold' : bold ? 'text-gray-900' : ''}>{value}</span>
+  </div>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+const CarRentPopUp: React.FC<CarRentPopUpProps> = ({
+  showPopup,
+  selectedCar,
+  closePopup,
+  user,
 }) => {
-  const [rentalDays, setRentalDays] = useState(1);
-  const [pickupDate, setPickupDate] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [paymentStep, setPaymentStep] = useState<'details' | 'payment' | 'confirmation'>('details');
+  const [rentalDays, setRentalDays]   = useState<number>(1);
+  const [pickupDate, setPickupDate]   = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [paymentStep, setPaymentStep] = useState<PaymentStep>('details');
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [pollController, setPollController] = useState<AbortController | null>(null);
 
-  if (!showPopup || !selectedCar) return null;
+  // ── Derived state ──────────────────────────────────────────────────────────
 
-  const calculateTotal = (): number => {
-    console.log(' Calculating total...');
-    console.log(' rentalDays:', rentalDays, 'type:', typeof rentalDays);
-    console.log(' selectedCar.price:', selectedCar.price, 'type:', typeof selectedCar.price);
-    
-    // Convert both values to numbers safely
-    const days = Number(rentalDays);
-    let price: number;
-    
-    // Handle different price formats
-    if (typeof selectedCar.price === 'string') {
-      // If it's a string, remove any non-numeric characters except decimal point
-      const priceString = selectedCar.price.replace(/[^\d.]/g, '');
-      price = parseFloat(priceString);
-      console.log(' Cleaned price string:', priceString, 'converted to:', price);
-    } else {
-      price = Number(selectedCar.price);
-    }
-    
-    console.log(' Converted days:', days, 'price:', price);
-    
-    // Check if conversion was successful
-    if (isNaN(days) || isNaN(price)) {
-      console.error(' Invalid number conversion:', {
-        originalDays: rentalDays,
-        originalPrice: selectedCar.price,
-        convertedDays: days,
-        convertedPrice: price
-      });
-      return 0;
-    }
-    
-    const total = days * price;
-    console.log('Total calculated:', total);
-    return total;
+  const total = useMemo(() => {
+    if (!selectedCar) return 0;
+    const days  = Math.max(1, Number(rentalDays) || 1);
+    const price = parsePrice(selectedCar.price);
+    return days * price;
+  }, [rentalDays, selectedCar]);
+
+  const dropoffDate = useMemo(() => addDays(pickupDate, rentalDays), [pickupDate, rentalDays]);
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+
+  const resetState = useCallback(() => {
+    setRentalDays(1);
+    setPickupDate('');
+    setPhoneNumber('');
+    setPaymentStep('details');
+    setIsProcessing(false);
+    setPollController(null);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    pollController?.abort();
+    resetState();
+    closePopup();
+  }, [pollController, resetState, closePopup]);
+
+  const handleRentalDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    setRentalDays(isNaN(val) || val < 1 ? 1 : val);
   };
 
   const handleProceedToPayment = () => {
     if (!pickupDate) {
-      alert('Please select a pickup date');
+      alert('Please select a pickup date.');
       return;
     }
-    setShowPayment(true);
     setPaymentStep('payment');
   };
 
-  // ADD THIS HELPER FUNCTION
-  const calculateDropoffDate = (pickupDate: string, days: number): string => {
-    if (!pickupDate) return '';
-    const date = new Date(pickupDate);
-    date.setDate(date.getDate() + days);
-    return date.toISOString().split('T')[0];
-  };
-
-  const formatPhoneNumber = (phone: string): string => {
-    // Convert to 254 format
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.startsWith('0')) {
-      return '254' + cleaned.substring(1);
-    } else if (cleaned.startsWith('254')) {
-      return cleaned;
-    } else if (cleaned.startsWith('+254')) {
-      return cleaned.substring(1);
-    } else if (cleaned.length === 9) {
-      return '254' + cleaned;
-    }
-    return cleaned;
-  };
-
-  // SINGLE handleMpesaPayment FUNCTION (REMOVED DUPLICATE)
-const handleMpesaPayment = async () => {
-  if (!phoneNumber) {
-    alert('Please enter your M-Pesa phone number');
-    return;
-  }
-
-  // Validate phone number format (Kenyan)
-  const phoneRegex = /^(?:254|\+254|0)?(7[0-9]{8})$/;
-  if (!phoneRegex.test(phoneNumber)) {
-    alert('Please enter a valid Kenyan phone number');
-    return;
-  }
-
-  try {
-    setIsProcessing(true);
-    console.log(' Starting M-Pesa payment...');
-
-    // Prepare the request data
-    const requestData = {
-      carId: selectedCar.id,
-      carName: selectedCar.name,
-      rentalDays,
-      pickupDate,
-      dropoffDate: calculateDropoffDate(pickupDate, rentalDays),
-      totalAmount: calculateTotal(),
-      phoneNumber: formatPhoneNumber(phoneNumber),
-      carImage: selectedCar.img,
-      userId: 1,
-      pickupLocation: "Nairobi",
-      dropoffLocation: "Nairobi",
-      specialRequests: ""
-    };
-
-    console.log(' Sending request data:', requestData);
-
-    // Step 1: Initiate M-Pesa payment
-    const response = await fetch('/features/Rent/api/mpesa-payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    });
-
-    console.log(' Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error(' API error response:', errorData);
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('API initiation response:', result);
-    
-    if (result.success) {
-      //  IMPORTANT: Don't show success immediately!
-      // Wait and check the actual payment status
-      console.log(' Payment initiated. Checking status...');
-      
-      const checkoutRequestID = result.checkoutRequestID;
-      
-      // Step 2: Wait and check payment status multiple times
-      let paymentCompleted = false;
-      let attempts = 0;
-      const maxAttempts = 30; // Check for 30 seconds (30 * 1 second)
-      
-      while (!paymentCompleted && attempts < maxAttempts) {
-        attempts++;
-        console.log(` Checking payment status (attempt ${attempts})...`);
-        
-        // Wait 1 second before checking
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Check payment status
-        const statusResponse = await fetch('/features/Rent/api/check-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ checkoutRequestID }),
-        });
-        
-        if (statusResponse.ok) {
-          const statusResult = await statusResponse.json();
-          console.log(' Payment status:', statusResult);
-          
-          if (statusResult.paymentStatus === 'COMPLETED') {
-            // Payment actually succeeded
-            paymentCompleted = true;
-            setPaymentStep('confirmation');
-            console.log('Payment completed successfully!');
-            break;
-          } else if (statusResult.paymentStatus === 'FAILED') {
-            //  Payment failed or was cancelled
-            throw new Error(statusResult.payment?.failureReason || 'Payment failed or was cancelled');
-          }
-          // If still PENDING, continue waiting
-        }
-      }
-      
-      if (!paymentCompleted) {
-        throw new Error('Payment confirmation timeout. Please check your M-Pesa messages.');
-      }
-      
-    } else {
-      throw new Error(result.message || 'Payment initiation failed');
-    }
-
-  } catch (error: unknown) {
-    console.error(' M-Pesa payment error:', error);
-    const getErrorMessage = (err: unknown) => {
-      if (err instanceof Error) return err.message;
-      if (typeof err === 'string') return err;
-      try {
-        return JSON.stringify(err);
-      } catch {
-        return 'An unknown error occurred';
-      }
-    };
-    
-    const errorMessage = getErrorMessage(error);
-    alert(`Payment failed: ${errorMessage}`);
-    
-    // Reset to payment step so user can try again
-    setPaymentStep('payment');
-    
-  } finally {
+  const handleCancelPayment = () => {
+    pollController?.abort();
     setIsProcessing(false);
-  }
-};
-
-  const handleBackToDetails = () => {
-    if (paymentStep === 'payment') {
-      setPaymentStep('details');
-    } else if (paymentStep === 'confirmation') {
-      setPaymentStep('payment');
-    }
+    setPaymentStep('payment');
   };
 
   const handleCompleteRental = () => {
-    alert(`Congratulations! You've successfully rented the ${selectedCar.name}`);
+    resetState();
     closePopup();
-    // Reset states
-    setPaymentStep('details');
-    setPhoneNumber('');
-    setShowPayment(false);
+  };
+
+  const handleMpesaPayment = async () => {
+    if (!user) {
+      alert('Please log in to complete your rental.');
+      handleClose();
+       window.location.href = '/auth/signin?redirect=' + encodeURIComponent('/vehicles'); 
+      return;
+    }
+
+    if (!KENYAN_PHONE_REGEX.test(phoneNumber)) {
+      alert('Please enter a valid Kenyan phone number (e.g. 0712 345 678).');
+      return;
+    }
+
+    const controller = new AbortController();
+    setPollController(controller);
+    setIsProcessing(true);
+
+    try {
+      // 1. Initiate STK push
+      const initiateRes = await fetch('/features/Rent/api/mpesa-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          carId:            selectedCar!.id,
+          carName:          selectedCar!.name,
+          carImage:         selectedCar!.img,
+          rentalDays,
+          pickupDate,
+          dropoffDate,
+          totalAmount:      total,
+          phoneNumber:      formatPhoneNumber(phoneNumber),
+          userId:           user.id,
+          pickupLocation:   'Nairobi',
+          dropoffLocation:  'Nairobi',
+          specialRequests:  '',
+        }),
+      });
+
+      if (!initiateRes.ok) {
+        const err = await initiateRes.json();
+        throw new Error(err.message || `Request failed (${initiateRes.status})`);
+      }
+
+      const { success, checkoutRequestID, message } = await initiateRes.json();
+
+      if (!success) throw new Error(message || 'Payment initiation failed.');
+
+      // 2. Poll for status
+      for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+        await new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(resolve, POLL_INTERVAL_MS);
+          controller.signal.addEventListener('abort', () => { clearTimeout(timer); reject(new DOMException('Aborted', 'AbortError')); });
+        });
+
+        const statusRes = await fetch('/features/Rent/api/check-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({ checkoutRequestID }),
+        });
+
+        if (!statusRes.ok) continue;
+
+        const statusData = await statusRes.json();
+
+        if (statusData.paymentStatus === 'COMPLETED') {
+          setPaymentStep('confirmation');
+          return;
+        }
+
+        if (statusData.paymentStatus === 'FAILED') {
+          throw new Error(statusData.payment?.failureReason || 'Payment was declined or cancelled.');
+        }
+      }
+
+      throw new Error('Payment confirmation timed out. Please check your M-Pesa messages.');
+
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') return; // user cancelled
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      alert(`Payment failed: ${msg}`);
+      setPaymentStep('payment');
+    } finally {
+      setIsProcessing(false);
+      setPollController(null);
+    }
+  };
+
+  // ── Guard ──────────────────────────────────────────────────────────────────
+
+  if (!showPopup || !selectedCar) return null;
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  const stepTitle: Record<PaymentStep, string> = {
+    details:      `Rent ${selectedCar.name}`,
+    payment:      'M-Pesa Payment',
+    confirmation: 'Booking Confirmed',
   };
 
   return (
-    <div>
-      {showPopup && selectedCar && (
-        <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 hover:scale-100 max-h-[90vh] overflow-y-auto">
-            {/* Popup Header */}
-            <div className="relative p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-              <h2 className="text-2xl font-black text-gray-900">
-                {paymentStep === 'details' && `Rent ${selectedCar.name}`}
-                {paymentStep === 'payment' && 'M-Pesa Payment'}
-                {paymentStep === 'confirmation' && 'Payment Confirmation'}
-              </h2>
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col">
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 className="text-sm font-semibold text-gray-900 tracking-wide uppercase">
+            {stepTitle[paymentStep]}
+          </h2>
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-all"
+          >
+            <FaTimes size={13} />
+          </button>
+        </div>
+
+        {/* ── Body ── */}
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+
+          {/* STEP 1 — Details */}
+          {paymentStep === 'details' && (
+            <>
+              {/* Car summary */}
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-16 rounded-xl overflow-hidden bg-gray-200 shrink-0">
+                  <Image src={selectedCar.img} alt={selectedCar.name} fill className="object-cover" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 text-sm">{selectedCar.name}</p>
+                  <p className="text-orange-600 text-sm font-medium mt-0.5">
+                    Ksh {parsePrice(selectedCar.price).toLocaleString()} <span className="text-gray-400 font-normal">/ day</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Car specs */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: <FaGasPump />,     label: selectedCar.fuelType },
+                  { icon: <IoSpeedometer />, label: selectedCar.gear },
+                  { icon: <FaUserFriends />, label: `${selectedCar.seats} seats` },
+                  { icon: <FaCog />,         label: selectedCar.drive },
+                ].map(({ icon, label }) => (
+                  <div key={label} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-500">
+                    <span className="text-gray-400">{icon}</span>
+                    {label}
+                  </div>
+                ))}
+              </div>
+
+              {/* Rental inputs */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide">
+                    Rental Days
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={rentalDays}
+                    onChange={handleRentalDaysChange}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide">
+                    Pickup Date
+                  </label>
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(e) => setPickupDate(e.target.value)}
+                    min={todayISO()}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Order summary */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Order Summary</p>
+                <SummaryRow label={selectedCar.name} value={`Ksh ${parsePrice(selectedCar.price).toLocaleString()} × ${rentalDays}`} />
+                {pickupDate && <SummaryRow label="Drop-off" value={formatDate(dropoffDate)} />}
+                <SummaryRow label="Total" value={`Ksh ${total.toLocaleString()}`} bold />
+              </div>
+            </>
+          )}
+
+          {/* STEP 2 — Payment */}
+          {paymentStep === 'payment' && (
+            <>
+              <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Order Summary</p>
+                <SummaryRow label={selectedCar.name} value={`Ksh ${parsePrice(selectedCar.price).toLocaleString()} × ${rentalDays} days`} />
+                <SummaryRow label="Pickup"   value={formatDate(pickupDate)} />
+                <SummaryRow label="Drop-off" value={formatDate(dropoffDate)} />
+                <SummaryRow label="Total" value={`Ksh ${total.toLocaleString()}`} bold />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide">
+                  M-Pesa Phone Number
+                </label>
+                <input
+                  type="tel"
+                  placeholder="0712 345 678"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-gray-400 mt-1.5">
+                  A payment prompt of <strong className="text-gray-600">Ksh {total.toLocaleString()}</strong> will be sent to this number.
+                </p>
+              </div>
+
+              {isProcessing && (
+                <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                  <Spinner />
+                  <div>
+                    <p className="text-sm font-medium text-green-800">Waiting for payment…</p>
+                    <p className="text-xs text-green-600 mt-0.5">Check your phone and enter your M-Pesa PIN.</p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* STEP 3 — Confirmation */}
+          {paymentStep === 'confirmation' && (
+            <>
+              <div className="flex flex-col items-center py-4 text-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-green-200 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Payment Successful</h3>
+                  <p className="text-sm text-gray-500 mt-1">We'll contact you shortly to confirm your pickup details.</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                <SummaryRow label="Vehicle"       value={selectedCar.name} />
+                <SummaryRow label="Pickup date"   value={formatDate(pickupDate)} />
+                <SummaryRow label="Drop-off date" value={formatDate(dropoffDate)} />
+                <SummaryRow label="Rental period" value={`${rentalDays} day${rentalDays > 1 ? 's' : ''}`} />
+                <SummaryRow label="Total paid"    value={`Ksh ${total.toLocaleString()}`} bold accent />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="px-6 py-4 border-t border-gray-200">
+          {paymentStep === 'details' && (
+            <div className="flex gap-3">
               <button
-                onClick={closePopup}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={handleClose}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition-colors"
               >
-                <FaTimes className="text-xl" />
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedToPayment}
+                disabled={!pickupDate}
+                className="flex-1 px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Continue to Payment
               </button>
             </div>
+          )}
 
-            {/* Popup Content */}
-            <div className="p-6">
-              {paymentStep === 'details' && (
-                // Rental Details Form
-                <>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="relative w-20 h-20 rounded-xl overflow-hidden">
-                      <Image
-                        src={selectedCar.img}
-                        alt={selectedCar.name}
-                        fill
-                        className="object-scale-down"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-gray-900">{selectedCar.name}</h3>
-                      <p className="text-orange-600 font-bold text-lg">Ksh {selectedCar.price} / day</p>
-                    </div>
-                  </div>
-
-                  {/* Car Details */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <FaGasPump className="text-orange-500" />
-                      <span className="text-sm font-medium">{selectedCar.fuelType}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <IoSpeedometer className="text-orange-500" />
-                      <span className="text-sm font-medium">{selectedCar.gear}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <FaUserFriends className="text-orange-500" />
-                      <span className="text-sm font-medium">{selectedCar.seats} Seats</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <FaCog className="text-orange-500" />
-                      <span className="text-sm font-medium">{selectedCar.drive}</span>
-                    </div>
-                  </div>
-
-                  {/* Rental Form */}
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Rental Period (Days)
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={rentalDays}
-                        onChange={(e) => setRentalDays(Number(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Pickup Date
-                      </label>
-                      <input
-                        type="date"
-                        value={pickupDate}
-                        onChange={(e) => setPickupDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Order Summary */}
-                  <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">{selectedCar.name}</span>
-                        <span className="font-medium">Ksh {selectedCar.price} × {rentalDays}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-gray-200 pt-2">
-                        <span className="font-semibold text-gray-900">Total</span>
-                        <span className="font-bold text-orange-600 text-lg">Ksh {calculateTotal()}</span>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {paymentStep === 'payment' && (
-                // M-Pesa Payment Section
-                <>
-                  <div className="text-center mb-6">
-                    <FaMobileAlt className="text-4xl text-green-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-black text-gray-900">M-Pesa Payment</h3>
-                    <p className="text-gray-600 mt-2">Complete your rental with M-Pesa</p>
-                  </div>
-
-                  {/* Order Summary for Payment */}
-                  <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">{selectedCar.name}</span>
-                        <span className="font-medium">Ksh {selectedCar.price} × {rentalDays} days</span>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>Pickup: {new Date(pickupDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-gray-200 pt-2">
-                        <span className="font-semibold text-gray-900">Total Amount</span>
-                        <span className="font-bold text-orange-600 text-lg">Ksh {calculateTotal()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* M-Pesa Phone Input */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      M-Pesa Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="07XX XXX XXX"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      Enter your M-Pesa registered phone number
-                    </p>
-                  </div>
-
-                  {/* Payment Instructions */}
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <FaMobileAlt className="text-white text-sm" />
-                      </div>
-                      <div>
-                        <h5 className="font-semibold text-gray-900">M-Pesa Instructions</h5>
-                        <p className="text-xs text-gray-600">
-                          You will receive an M-Pesa prompt on your phone to confirm the payment of Ksh {calculateTotal()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {paymentStep === 'confirmation' && (
-                // Payment Confirmation Section
-                <>
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FaMobileAlt className="text-white text-2xl" />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 mb-2">Payment Successful!</h3>
-                    <p className="text-gray-600">
-                      Your M-Pesa payment of <strong>Ksh {calculateTotal()}</strong> was successful.
-                    </p>
-                  </div>
-
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Rental Confirmed</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Vehicle:</span>
-                        <span className="font-medium">{selectedCar.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Pickup Date:</span>
-                        <span className="font-medium">{new Date(pickupDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Rental Period:</span>
-                        <span className="font-medium">{rentalDays} days</span>
-                      </div>
-                      <div className="flex justify-between border-t border-gray-200 pt-2">
-                        <span className="font-semibold text-gray-900">Total Paid:</span>
-                        <span className="font-bold text-green-600">Ksh {calculateTotal()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <h5 className="font-semibold text-gray-900 mb-2">Next Steps</h5>
-                    <p className="text-xs text-gray-600">
-                      We will contact you shortly to confirm pickup details and location.
-                    </p>
-                  </div>
-                </>
-              )}
+          {paymentStep === 'payment' && (
+            <div className="flex gap-3">
+              <button
+                onClick={isProcessing ? handleCancelPayment : () => setPaymentStep('details')}
+                disabled={false}
+                className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                {isProcessing ? 'Cancel' : 'Back'}
+              </button>
+              <button
+                onClick={handleMpesaPayment}
+                disabled={isProcessing || !phoneNumber}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <><Spinner /> Processing…</>
+                ) : (
+                  <><FaMobileAlt /> Pay with M-Pesa</>
+                )}
+              </button>
             </div>
+          )}
 
-            {/* Popup Footer */}
-            <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-3xl sticky bottom-0">
-              {paymentStep === 'details' && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={closePopup}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleProceedToPayment}
-                    disabled={!pickupDate}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    Proceed to Payment
-                  </button>
-                </div>
-              )}
-
-              {paymentStep === 'payment' && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleBackToDetails}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    Back to Details
-                  </button>
-                  <button
-                    onClick={handleMpesaPayment}
-                    disabled={isProcessing || !phoneNumber}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <FaMobileAlt />
-                        Pay with M-Pesa
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {paymentStep === 'confirmation' && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleCompleteRental}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105"
-                  >
-                    Complete Rental
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          {paymentStep === 'confirmation' && (
+            <button
+              onClick={handleCompleteRental}
+              className="w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors"
+            >
+              Done
+            </button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

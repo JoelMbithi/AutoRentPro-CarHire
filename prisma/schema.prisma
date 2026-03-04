@@ -19,25 +19,44 @@ model User {
   email          String    @unique
   phone          String
   password       String
-  drivingLicense String
+  drivingLicense String?
   dateOfBirth    DateTime?
   address        String?
   city           String?
   country        String?
   isVerified     Boolean   @default(false)
   role           UserRole  @default(CUSTOMER)
+  
+  // Admin specific fields
+  adminLevel     AdminLevel?    // For admins (super_admin, manager, staff)
+  permissions    Json?          // Custom permissions for admins
+  
+  // Car Owner specific fields
+  businessName   String?        // If owner has a business
+  taxId          String?        // Business tax ID
+  commission     Float?         @default(15.0) // Commission percentage for owners
+  totalCars      Int?           @default(0) // Number of cars they own
+  bankAccount    Json?          // Bank details for payouts
+  
+    // Password Reset Fields 
+  resetToken     String?        @unique
+   resetCode      String?
+  resetTokenExpiry DateTime?
+
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   
   // Relations
-  bookings    Booking[]
-  userProfile UserProfile?
-  payments    Payment[]
-
- // ADD the correct relation to ContactMessage
+  bookings       Booking[]
+  userProfile    UserProfile?
+  payments       Payment[]
   messages       ContactMessage[]
+  ownedCars      Car[]          @relation("CarOwner") // Cars owned by this user
+  managedCars    Car[]          @relation("CarAdmin") // Cars managed by admin
+  receivedPayments Payment[]    @relation("OwnerPayments") // Payments received as owner
 
   
+
   @@map("users")
 }
 
@@ -74,6 +93,15 @@ model Car {
   power       String
   isAvailable Boolean  @default(true)
   location    String?
+  
+  // Owner relation
+  ownerId     Int?              // Who owns this car (car owner)
+  owner       User?             @relation("CarOwner", fields: [ownerId], references: [id])
+  
+  // Admin relation
+  managedBy   Int?              // Admin who manages this car
+  admin       User?             @relation("CarAdmin", fields: [managedBy], references: [id])
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -121,12 +149,19 @@ model Payment {
   transactionDesc  String
   failureReason    String?
   metadata         Json?
+  
+  // Commission tracking
+  ownerId          Int?           // Car owner who gets paid
+  ownerCommission  Float?         // Commission amount for owner
+  adminCommission  Float?         // Platform commission
+  
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   
   // Relations
   car    Car    @relation(fields: [carId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
+  owner  User?  @relation("OwnerPayments", fields: [ownerId], references: [id])
   booking Booking? @relation(fields: [bookingId], references: [id])
   
   @@map("payments")
@@ -135,8 +170,16 @@ model Payment {
 // Enums
 enum UserRole {
   CUSTOMER
-  AGENT
+  AGENT        // Car Owner
   ADMIN
+  SUPER_ADMIN  // Top level admin
+}
+
+enum AdminLevel {
+  SUPER_ADMIN
+  MANAGER
+  STAFF
+  VIEWER
 }
 
 enum FuelType {
@@ -176,6 +219,7 @@ enum BookingStatus {
   ACTIVE
   COMPLETED
   CANCELLED
+  REJECTED
 }
 
 enum PaymentStatus {
@@ -183,6 +227,7 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   CANCELLED
+  REFUNDED
 }
 
 model ContactMessage {
@@ -193,9 +238,9 @@ model ContactMessage {
   subject     String
   message     String
   rentalType  String
+  emailStatus  String?  @default("pending")
   createdAt   DateTime @default(now())
 
-  // TEMPORARILY optional
   agentId     Int?
   agent       Agent?   @relation(fields: [agentId], references: [id])
 
@@ -205,14 +250,11 @@ model ContactMessage {
   status      MessageStatus @default(UNREAD)
 }
 
-
 enum MessageStatus {
   UNREAD
   READ
   REPLIED
 }
-
-
 
 model Agent {
   id           Int      @id @default(autoincrement())

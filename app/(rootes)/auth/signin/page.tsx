@@ -1,7 +1,12 @@
 import SignForm from '@/app/features/auth/components/SignForm'
 import React from 'react'
 
-const page = () => {
+export const metadata = {
+  title: 'Sign In | AutoRentPro',
+  description: 'Sign in to your AutoRentPro account',
+}
+
+const SignInPage = () => {
   return (
     <div>
       <SignForm/>
@@ -9,4 +14,4 @@ const page = () => {
   )
 }
 
-export default page
+export default SignInPage

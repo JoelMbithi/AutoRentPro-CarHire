@@ -4,6 +4,8 @@ import Profile from "@/app/features/Profile/components/Profile";
 import Setting from "@/app/features/settings/components/Setting";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { Logo as CarLogo } from "../../shared/Components/CarLogo";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,14 +17,10 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      await fetch('/api/auth/signout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await fetch("/api/auth/signout", { method: "POST", credentials: "include" });
       setIsSignedIn(false);
       setUser(null);
       setProfileDropdownOpen(false);
-      console.log("User signed out");
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -30,199 +28,134 @@ const Navbar = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch('/features/Profile/api/profile', {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const res = await fetch("/features/Profile/api/profile", { method: "GET", credentials: "include" });
       const data = await res.json();
-      
-      if (data.success && data.user) {
-        setIsSignedIn(true);
-        setUser(data.user);
-      } else {
-        await handleAuthCheck();
-      }
-    } catch (error) {
-      console.log("Error fetching profile:", error);
-      await handleAuthCheck();
-    }
+      if (data.success && data.user) { setIsSignedIn(true); setUser(data.user); }
+      else await handleAuthCheck();
+    } catch { await handleAuthCheck(); }
   };
 
   const handleAuthCheck = async () => {
     try {
-      const res = await fetch('/features/auth/api/signin', {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const res = await fetch("/features/auth/api/signin", { method: "GET", credentials: "include" });
       const data = await res.json();
-
-      if (data.authenticated) {
-        setIsSignedIn(true);
-        setUser(data.user);
-      } else {
-        setIsSignedIn(false);
-        setUser(null);
-      }
-    } catch (error) {
-      console.log("Error during auth check:", error);
-      setIsSignedIn(false);
-      setUser(null);
-    }
+      if (data.authenticated) { setIsSignedIn(true); setUser(data.user); }
+      else { setIsSignedIn(false); setUser(null); }
+    } catch { setIsSignedIn(false); setUser(null); }
   };
 
-  const handleProfile = () => {
-    setOpenProfile(true);
-    setProfileDropdownOpen(false);
-    setMenuOpen(false);
-  };
-
-  const closeProfile = () => {
-    setOpenProfile(false);
-  };
-
-  const handleSetting = () => {
-    setOpenSetting(true);
-    setProfileDropdownOpen(false);
-    setMenuOpen(false);
-  };
-  
-  const closeSetting = () => {
-    setOpenSetting(false);
-  };
-
-  const handleProfileUpdate = (updatedUser: any) => {
-    setUser(updatedUser);
-  };
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.profile-dropdown-trigger') && !target.closest('.profile-dropdown-content')) {
-        setProfileDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const handleProfile = () => { setOpenProfile(true); setProfileDropdownOpen(false); setMenuOpen(false); };
+  const handleSetting = () => { setOpenSetting(true); setProfileDropdownOpen(false); setMenuOpen(false); };
+  const handleProfileUpdate = (updatedUser: any) => setUser(updatedUser);
 
   const getUserInitials = () => {
     if (!user) return "U";
-    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase() || "U";
+    return `${user.firstName?.charAt(0) || ""}${user.lastName?.charAt(0) || ""}`.toUpperCase() || "U";
   };
 
-  // Prevent body scroll when modals are open
+  useEffect(() => { fetchUserProfile(); }, []);
+
   useEffect(() => {
-    if (openProfile || openSetting) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
+    const handleClickOutside = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest(".profile-dropdown-trigger") && !t.closest(".profile-dropdown-content"))
+        setProfileDropdownOpen(false);
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = openProfile || openSetting ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [openProfile, openSetting]);
+
+  const navLinks = [
+    { name: "Home",     href: "/" },
+    { name: "Our Fleet", href: "/vehicles" },
+    { name: "About Us", href: "/about" },
+    { name: "Services", href: "/services" },
+    { name: "Contact",  href: "/contact" },
+  ];
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-between px-6 py-4">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-3.5 max-w-8xl mx-auto">
+
           {/* Logo */}
-          <Link href={"/"} className="text-2xl font-bold text-gray-900 tracking-tight">
-            <span className="text-orange-600">Auto</span>
-            <span className="text-gray-800">Rent</span>
-            <span className="text-orange-600">Pro</span>
-            <span className="text-gray-800">.</span>
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+          {/*   <CarLogo/> */}
+          <span className="text-base font-bold text-gray-900 tracking-tight">
+              Auto<span className="text-red-500">Rent</span>Pro
+            </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex gap-8">
-            {[
-              { name: "Home", href: "/" },
-              { name: "Our Fleet", href: "/vehicles" },
-              { name: "About Us", href: "/about" },
-              { name: "Services", href: "/services" },
-              { name: "Contact", href: "/contact" },
-            ].map((item) => (
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="font-medium text-gray-700 hover:text-orange-600 py-2 relative group"
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-orange-600 rounded-lg hover:bg-orange-50 transition-all duration-150"
               >
                 {item.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"></span>
               </Link>
             ))}
           </div>
 
-          {/* Right Side (Profile) — Desktop */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Desktop right */}
+          <div className="hidden md:flex items-center gap-4">
             <Link
               href="/agents"
-              className="hidden lg:flex font-medium text-gray-600 hover:text-orange-600 items-center gap-1"
+              className="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors flex items-center gap-1.5"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              Our Agent
+              Our Agents
             </Link>
 
             {isSignedIn ? (
               <div className="relative">
-                <div 
-                  className="flex items-center gap-3 cursor-pointer profile-dropdown-trigger"
+                <button
+                  className="profile-dropdown-trigger flex items-center gap-2.5 cursor-pointer"
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 >
-                  <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-purple-400 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300">
-                    <span className="text-white text-sm font-bold">{getUserInitials()}</span>
+                  {/* Avatar */}
+                  <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-white text-xs font-bold">{getUserInitials()}</span>
                   </div>
-
-                  <div className="hidden sm:flex items-center gap-2">
-                    <span className="font-semibold text-gray-800 hover:text-orange-600">
-                      {user?.firstName} {user?.lastName}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-purple-400 hover:text-orange-600 transition-transform ${
-                        profileDropdownOpen ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+                  <span className="hidden sm:block text-sm font-semibold text-gray-800">
+                    {user?.firstName} {user?.lastName}
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
 
                 {profileDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border profile-dropdown-content z-50">
-                    <div className="p-3 border-b">
-                      <p className="font-semibold text-gray-800">{user?.firstName} {user?.lastName}</p>
-                      <p className="text-sm text-gray-500">{user?.email}</p>
+                  <div className="profile-dropdown-content absolute top-full right-0 mt-2 w-52 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">{user?.firstName} {user?.lastName}</p>
+                      <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                     </div>
-                    <div className="p-2">
-                      <button 
-                        onClick={handleProfile}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        My Profile
-                      </button>
-                      
-                      <button 
-                        onClick={handleSetting}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 rounded-md transition-colors"
-                      >
-                        Settings
-                      </button>
-                      <button 
+                    <div className="p-1.5">
+                      {[
+                        { label: "My Profile", action: handleProfile },
+                        { label: "Settings",   action: handleSetting },
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={item.action}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                      <button
                         onClick={handleSignOut}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        className="w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"
                       >
                         Sign Out
                       </button>
@@ -231,81 +164,74 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/auth/signin"
-                  className="font-medium text-gray-700 hover:text-orange-600 transition-colors"
-                >
+              <div className="flex items-center gap-3">
+                <Link href="/auth/signin" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   Sign In
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors shadow-sm shadow-orange-200"
                 >
                   Sign Up
                 </Link>
               </div>
             )}
           </div>
-          
-          {/* Mobile Menu Button */}
+
+          {/* Mobile hamburger */}
           <button
-            className="md:hidden flex flex-col gap-1.5 w-6 h-6"
+            className="md:hidden flex flex-col gap-1.5 w-5 h-5 justify-center"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
           >
-            <span className={`w-full h-0.5 bg-gray-700 transition ${menuOpen ? "rotate-45 translate-y-2" : ""}`}></span>
-            <span className={`w-full h-0.5 bg-gray-700 transition ${menuOpen ? "opacity-0" : ""}`}></span>
-            <span className={`w-full h-0.5 bg-gray-700 transition ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}></span>
+            <span className={`w-full h-0.5 bg-gray-700 transition-all duration-200 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`w-full h-0.5 bg-gray-700 transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+            <span className={`w-full h-0.5 bg-gray-700 transition-all duration-200 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
           </button>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden bg-white shadow-md border-t pb-4 animate-slide-down">
-            <div className="flex flex-col gap-4 px-6 pt-4">
-              {[
-                { name: "Home", href: "/" },
-                { name: "Our Fleet", href: "/vehicles" },
-                { name: "About Us", href: "/about" },
-                { name: "Services", href: "/services" },
-                { name: "Contact", href: "/contact" },
-              ].map((item) => (
+          <div className="md:hidden bg-white border-t border-gray-100 pb-5">
+            <div className="flex flex-col px-6 pt-4 gap-1">
+              {navLinks.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="text-gray-700 font-medium py-2 border-b border-gray-100"
+                  className="text-sm font-medium text-gray-700 py-2.5 border-b border-gray-100 hover:text-orange-600 transition-colors"
                 >
                   {item.name}
                 </Link>
               ))}
-              
-              {/* Mobile Auth Section */}
-              <div className="pt-4 border-t border-gray-200">
+
+              <div className="pt-4 mt-2">
                 {isSignedIn ? (
                   <>
-                    <div className="mb-3">
-                      <p className="font-semibold text-gray-800">{user?.firstName} {user?.lastName}</p>
-                      <p className="text-sm text-gray-500">{user?.email}</p>
+                    <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
+                      <div className="w-9 h-9 bg-orange-600 rounded-full flex items-center justify-center shrink-0">
+                        <span className="text-white text-sm font-bold">{getUserInitials()}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{user?.firstName} {user?.lastName}</p>
+                        <p className="text-xs text-gray-400">{user?.email}</p>
+                      </div>
                     </div>
-                    <button 
-                      onClick={handleProfile} 
-                      className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      My Profile
-                    </button>
-                    <button 
-                      onClick={handleSetting}
-                      className="w-full text-left text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      Settings
-                    </button>
-                    <button 
-                      onClick={() => {
-                        handleSignOut();
-                        setMenuOpen(false);
-                      }}
-                      className="w-full text-left text-red-600 font-medium py-2 hover:bg-red-50 transition-colors"
+                    {[
+                      { label: "My Profile", action: handleProfile, color: "text-gray-700" },
+                      { label: "Settings",   action: handleSetting, color: "text-gray-700" },
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        onClick={item.action}
+                        className={`w-full text-left text-sm font-medium ${item.color} py-2.5 border-b border-gray-100`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => { handleSignOut(); setMenuOpen(false); }}
+                      className="w-full text-left text-sm font-medium text-orange-600 py-2.5 mt-1"
                     >
                       Sign Out
                     </button>
@@ -315,14 +241,14 @@ const Navbar = () => {
                     <Link
                       href="/auth/signin"
                       onClick={() => setMenuOpen(false)}
-                      className="text-gray-700 font-medium py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      className="text-sm font-medium text-gray-700 py-2.5 border-b border-gray-100"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/auth/signup"
                       onClick={() => setMenuOpen(false)}
-                      className="bg-orange-600 hover:bg-orange-700 text-white text-center py-2 rounded-lg font-medium transition-colors"
+                      className="bg-orange-600 hover:bg-orange-700 text-white text-center text-sm font-semibold py-2.5 rounded-xl transition-colors"
                     >
                       Sign Up
                     </Link>
@@ -334,29 +260,20 @@ const Navbar = () => {
         )}
       </nav>
 
-      {/* Profile Modal - Full Screen */}
+      {/* Profile Modal */}
       {openProfile && (
         <div className="fixed inset-0 z-[100] bg-white overflow-hidden">
           <div className="h-screen w-screen">
-            <Profile 
-              openProfile={openProfile} 
-              onClose={closeProfile} 
-              user={user}
-              onProfileUpdate={handleProfileUpdate}
-            />
+            <Profile openProfile={openProfile} onClose={() => setOpenProfile(false)} user={user} onProfileUpdate={handleProfileUpdate} />
           </div>
         </div>
       )}
 
-      {/* Setting Modal - Full Screen */}
+      {/* Settings Modal */}
       {openSetting && (
         <div className="fixed inset-0 z-[100] bg-white overflow-hidden">
           <div className="h-screen w-screen">
-            <Setting  
-              isOpen={openSetting} 
-              onClose={closeSetting} 
-              user={user} 
-            />
+            <Setting isOpen={openSetting} onClose={() => setOpenSetting(false)} user={user} />
           </div>
         </div>
       )}

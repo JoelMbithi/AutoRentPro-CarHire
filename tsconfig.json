@@ -16,7 +16,7 @@
     "moduleResolution": "bundler", // Use bundler for better resolution
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@/*": [
