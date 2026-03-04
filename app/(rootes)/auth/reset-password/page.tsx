@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react"; // Add Suspense
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaArrowLeft, FaPaste } from "react-icons/fa";
+import { FaLock, FaEye, FaEyeSlash, FaCheckCircle, FaArrowLeft } from "react-icons/fa"; // Removed FaPaste (unused)
 
-const ResetPasswordPage = () => {
+// Create a separate component that uses useSearchParams
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -294,7 +295,6 @@ const ResetPasswordPage = () => {
                       onClick={handlePasteCode}
                       className="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 transition-colors"
                     >
-                      
                       Paste code
                     </button>
                   </div>
@@ -417,6 +417,25 @@ const ResetPasswordPage = () => {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+const ResetPasswordPage = () => {
+  return (
+    <Suspense fallback={
+      <div style={{ 
+        minHeight: "100vh", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center",
+        backgroundColor: "#f9fafb"
+      }}>
+        <div className="w-6 h-6 border-2 border-gray-200 border-t-orange-600 rounded-full animate-spin" />
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 };
 
