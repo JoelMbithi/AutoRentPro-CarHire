@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react"; // Add Suspense
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaEnvelope, FaArrowLeft, FaCheckCircle,  FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaArrowLeft, FaCheckCircle, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
-const ForgotPasswordPage = () => {
+// Create a separate component that uses useSearchParams
+function ForgotPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -852,6 +853,25 @@ const ForgotPasswordPage = () => {
         </div>
       </div>
     </>
+  );
+}
+
+// Main page component with Suspense boundary
+const ForgotPasswordPage = () => {
+  return (
+    <Suspense fallback={
+      <div style={{ 
+        minHeight: "100vh", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center",
+        backgroundColor: "#ffffff"
+      }}>
+        <div className="w-6 h-6 border-2 border-gray-200 border-t-orange-600 rounded-full animate-spin" />
+      </div>
+    }>
+      <ForgotPasswordContent />
+    </Suspense>
   );
 };
 
