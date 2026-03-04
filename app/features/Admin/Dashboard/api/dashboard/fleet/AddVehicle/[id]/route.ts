@@ -7,10 +7,11 @@ import { FuelType, Transmission, DriveType, CarCategory } from '@/app/generated/
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // Changed: params is now a Promise
 ) {
   try {
-    const vehicleId = parseInt(params.id);
+    const { id } = await params;  // Added: await params
+    const vehicleId = parseInt(id);
     
     if (isNaN(vehicleId)) {
       return NextResponse.json(
@@ -24,10 +25,10 @@ export async function PUT(
     // Get text fields - these match your schema
     const make = formData.get('make') as string;
     const model = formData.get('model') as string;
-    const year = formData.get('year') as string;        // String - production year (e.g., "2022")
+    const year = formData.get('year') as string;
     const price = formData.get('price') as string;
     const fuelType = formData.get('fuelType') as FuelType;
-    const seatsStr = formData.get('seats') as string;    // Will be converted to Int
+    const seatsStr = formData.get('seats') as string;
     const transmission = formData.get('transmission') as Transmission;
     const drive = formData.get('drive') as DriveType;
     const category = formData.get('category') as CarCategory;
@@ -46,7 +47,7 @@ export async function PUT(
       );
     }
 
-    // Parse seats to integer (matches schema: seats is Int)
+    // Parse seats to integer
     let seats = 0;
     if (seatsStr) {
       seats = parseInt(seatsStr);
@@ -124,16 +125,16 @@ export async function PUT(
       }
     }
     
-    // Update vehicle in database - matches your schema exactly
+    // Update vehicle in database
     const vehicle = await prisma.car.update({
       where: { id: vehicleId },
       data: {
         make,
         model,
-        year,                 // String - production year
+        year,
         price,
         fuelType: fuelType as FuelType,
-        seats,                // Int - parsed from string
+        seats,
         transmission: transmission as Transmission,
         drive: drive as DriveType,
         category: category as CarCategory,
@@ -153,7 +154,6 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating vehicle:', error);
     
-    // Handle Prisma errors
     if (error instanceof Error) {
       if (error.message.includes('Record to update not found')) {
         return NextResponse.json(
@@ -172,10 +172,11 @@ export async function PUT(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // Changed: params is now a Promise
 ) {
   try {
-    const vehicleId = parseInt(params.id);
+    const { id } = await params;  // Added: await params
+    const vehicleId = parseInt(id);
     
     if (isNaN(vehicleId)) {
       return NextResponse.json(
@@ -196,25 +197,25 @@ export async function GET(
     }
     
     // Format the response to match your frontend expectations
-// From your GET route
-const formattedVehicle = {
-  name: `${vehicle.make} ${vehicle.model}`,
-  make: vehicle.make,
-  model: vehicle.model,
-  year: vehicle.year,
-  price: vehicle.price,
-  fuel: vehicle.fuelType,        // Note: 'fuel' not 'fuelType'
-  seats: vehicle.seats,
-  gear: vehicle.transmission,     // Note: 'gear' not 'transmission'
-  drive: vehicle.drive,
-  type: vehicle.category,         // Note: 'type' not 'category'
-  power: vehicle.power,
-  location: vehicle.location,
-  img: vehicle.image,             // Note: 'img' not 'image'
-  status: vehicle.isAvailable ? 'available' : 'maintenance',
-  plate: `K${vehicle.id.toString().padStart(4, '0')}`,
-  rating: vehicle.rating,
-};
+    const formattedVehicle = {
+      name: `${vehicle.make} ${vehicle.model}`,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      price: vehicle.price,
+      fuel: vehicle.fuelType,
+      seats: vehicle.seats,
+      gear: vehicle.transmission,
+      drive: vehicle.drive,
+      type: vehicle.category,
+      power: vehicle.power,
+      location: vehicle.location,
+      img: vehicle.image,
+      status: vehicle.isAvailable ? 'available' : 'maintenance',
+      plate: `K${vehicle.id.toString().padStart(4, '0')}`,
+      rating: vehicle.rating,
+    };
+    
     return NextResponse.json({ vehicle: formattedVehicle });
     
   } catch (error) {
@@ -228,10 +229,11 @@ const formattedVehicle = {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // Changed: params is now a Promise
 ) {
   try {
-    const vehicleId = parseInt(params.id);
+    const { id } = await params;  // Added: await params
+    const vehicleId = parseInt(id);
     
     if (isNaN(vehicleId)) {
       return NextResponse.json(
