@@ -5,74 +5,64 @@ import React from "react";
 
 const AboutDeals = () => {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between px-6 sm:px-12 lg:px-24 py-16 gap-12 bg-white">
+    <div className="flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 lg:px-12 xl:px-24 py-10 sm:py-12 lg:py-16 gap-8 sm:gap-10 lg:gap-12 bg-white">
 
-      {/* Left */}
-      <div className="flex flex-col max-w-md">
-        <h1 className="font-bold text-3xl md:text-4xl text-gray-900 leading-tight">
-          Best Car <span className="text-orange-500">Rental Deals</span>
-        </h1>
+      {/* ── Left — Content ── */}
+      <div className="flex flex-col w-full lg:w-1/2 gap-6 sm:gap-8">
 
-        <p className="text-gray-500 mt-3 text-base">
-          Drive premium vehicles at flexible rates — perfect for business, travel, or special events.
-        </p>
+        {/* Header */}
+        <div>
+          <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-gray-900 leading-tight text-center lg:text-left">
+            Best Car <span className="text-orange-500">Rental Deals</span>
+          </h1>
+          <p className="text-gray-500 mt-2 sm:mt-3 text-sm sm:text-base text-center lg:text-left">
+            Drive premium vehicles at flexible rates — perfect for business, travel, or special events.
+          </p>
+        </div>
 
         {/* Call box */}
-        <div className="flex items-center gap-3 mt-7 p-4 border border-gray-100 rounded-lg bg-gray-50 w-fit">
-          <div className="bg-orange-500 p-2.5 rounded-md shrink-0">
-            <Phone className="text-white" size={20} />
+        <div className="flex justify-center lg:justify-start">
+          <div className="flex items-center gap-3 p-3 sm:p-4 border border-gray-100 rounded-lg bg-gray-50 w-full sm:w-auto">
+            <div className="bg-orange-500 p-2 sm:p-2.5 rounded-md shrink-0">
+              <Phone className="text-white" size={18} />
+            </div>
+            <div>
+              <p className="text-gray-600 text-xs sm:text-sm">Call us for your next ride</p>
+              <p className="text-gray-900 font-semibold text-sm sm:text-base">(+254) 743 861 565</p>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm">Call us for your next ride</p>
-            <p className="text-gray-900 font-semibold text-base">(+254) 743 861 565</p>
-          </div>
+        </div>
+
+        {/* Benefits */}
+        <div className="flex flex-col gap-4 sm:gap-5">
+          {[
+            { icon: <BadgeCheck className="text-orange-500 mt-0.5 shrink-0" size={20} />, title: "Competitive Pricing",   desc: "Affordable daily and weekly rates with no hidden fees." },
+            { icon: <Wrench      className="text-orange-500 mt-0.5 shrink-0" size={20} />, title: "Breakdown Assistance",  desc: "24/7 roadside help to keep your journey smooth and safe." },
+            { icon: <Headphones  className="text-orange-500 mt-0.5 shrink-0" size={20} />, title: "24/7 Customer Support", desc: "Always available to assist you anytime, anywhere." },
+          ].map((item) => (
+            <div key={item.title} className="flex items-start gap-2 sm:gap-3">
+              {item.icon}
+              <div>
+                <h2 className="font-semibold text-gray-900 text-sm sm:text-base">{item.title}</h2>
+                <p className="text-gray-500 text-xs sm:text-sm mt-0.5 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Middle — benefits */}
-      <div className="flex flex-col gap-5 max-w-sm">
-
-        <div className="flex items-start gap-3">
-          <BadgeCheck className="text-orange-500 mt-0.5 shrink-0" size={22} />
-          <div>
-            <h2 className="font-semibold text-gray-900">Competitive Pricing</h2>
-            <p className="text-gray-500 text-sm mt-0.5">
-              Affordable daily and weekly rates with no hidden fees.
-            </p>
-          </div>
+      {/* ── Right — Image ── */}
+      <div className="w-full lg:w-1/2 flex justify-center items-center">
+        <div className="hidden md:flex relative w-full max-w-xs sm:max-w-sm lg:max-w-full aspect-[4/3]">
+          <Image
+            src="/car2.png"
+            alt="Featured Car"
+            fill
+            className="object-contain drop-shadow-md"
+          />
         </div>
-
-        <div className="flex items-start gap-3">
-          <Wrench className="text-orange-500 mt-0.5 shrink-0" size={22} />
-          <div>
-            <h2 className="font-semibold text-gray-900">Breakdown Assistance</h2>
-            <p className="text-gray-500 text-sm mt-0.5">
-              24/7 roadside help to keep your journey smooth and safe.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3">
-          <Headphones className="text-orange-500 mt-0.5 shrink-0" size={22} />
-          <div>
-            <h2 className="font-semibold text-gray-900">24/7 Customer Support</h2>
-            <p className="text-gray-500 text-sm mt-0.5">
-              Always available to assist you anytime, anywhere.
-            </p>
-          </div>
-        </div>
-
       </div>
 
-      {/* Right — image */}
-      <div className="hidden md:flex justify-center">
-        <Image
-          src="/car2.png"
-          alt="Featured Car"
-          width={500}
-          height={500}
-        />
-      </div>
     </div>
   );
 };
