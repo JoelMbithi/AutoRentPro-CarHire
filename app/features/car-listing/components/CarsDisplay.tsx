@@ -9,7 +9,10 @@ import CarRentPopUp from "@/app/features/Rent/components/CarRentPopUp";
 
 const CarsDisplay = () => {
   const [cars, setCars]             = useState<CarProps[]>([]);
+  const [displayedCars, setDisplayedCars] = useState<CarProps[]>([]);
+  const [visibleCount, setVisibleCount] = useState(6);
   const [loading, setLoading]       = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showPopup, setShowPopup]   = useState(false);
   const [selectedCar, setSelectedCar] = useState<CarProps | null>(null);
   const [user, setUser]             = useState<any>(null);
@@ -50,6 +53,7 @@ const CarsDisplay = () => {
         category: car.category.toLowerCase(),
       }));
       setCars(mappedCars);
+      setDisplayedCars(mappedCars.slice(0, 6));
     } catch (error) {
       console.log(error);
     } finally {
@@ -58,6 +62,27 @@ const CarsDisplay = () => {
   };
 
   useEffect(() => { fetchCars(); }, []);
+
+  const handleShowMore = () => {
+    setLoadingMore(true);
+    // Simulate loading for smoother UX
+    setTimeout(() => {
+      const newVisibleCount = visibleCount + 6;
+      setVisibleCount(newVisibleCount);
+      setDisplayedCars(cars.slice(0, newVisibleCount));
+      setLoadingMore(false);
+    }, 500);
+  };
+
+  const handleShowLess = () => {
+    setVisibleCount(6);
+    setDisplayedCars(cars.slice(0, 6));
+    // Smooth scroll back to top of section
+    window.scrollTo({
+      top: document.getElementById('cars-section')?.offsetTop,
+      behavior: 'smooth'
+    });
+  };
 
   const handleCarRent = (car: CarProps) => {
     if (!user) {
@@ -77,6 +102,9 @@ const CarsDisplay = () => {
       </div>
     );
   }
+
+  const hasMore = displayedCars.length < cars.length;
+  const showingAll = displayedCars.length === cars.length && cars.length > 6;
 
   return (
     <>
@@ -140,14 +168,32 @@ const CarsDisplay = () => {
           transition: transform 0.6s ease;
         }
         .cd-btn:hover .btn-shine { transform: translateX(100%); }
+        
+        .show-more-btn {
+          transition: all 0.3s ease;
+        }
+        .show-more-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(200, 81, 10, 0.3);
+        }
       `}</style>
 
-      <div className="py-8 sm:py-10 bg-[#f9f7f4]">
+      <div id="cars-section" className="py-8 sm:py-10 bg-[#f9f7f4]">
         <div className="max-w-[1400px] mx-auto px-3 sm:px-5 lg:px-6">
+
+          {/* Header with count */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Our Fleet</h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                Showing {displayedCars.length} of {cars.length} vehicles
+              </p>
+            </div>
+          </div>
 
           {/* ── Grid: 2-col on mobile, 2-col on md, 3-col on xl ── */}
           <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
-            {cars.map((car, index) => (
+            {displayedCars.map((car, index) => (
               <div key={index} className="cd-card bg-[#faf8f5] flex flex-col rounded-[4px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
 
                 {/* ── Image area ── */}
@@ -226,6 +272,58 @@ const CarsDisplay = () => {
               </div>
             ))}
           </div>
+
+          {/* Show More / Show Less Button */}
+          {cars.length > 6 && (
+            <div className="flex justify-center mt-8 sm:mt-10">
+              {hasMore ? (
+                <button
+                  onClick={handleShowMore}
+                  disabled={loadingMore}
+                  className="show-more-btn flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-sm sm:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      Show More Vehicles
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              ) : showingAll && (
+                <button
+                  onClick={handleShowLess}
+                  className="show-more-btn flex items-center gap-2 border-2 border-orange-600 text-orange-600 hover:bg-orange-50 font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-sm sm:text-base transition-colors"
+                >
+                  Show Less
+                  <svg className="w-4 h-4 ml-1 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Footer stats */}
+          {cars.length > 0 && (
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200 text-xs sm:text-sm text-gray-500">
+              <span>
+                Showing <span className="font-semibold text-gray-700">{displayedCars.length}</span> of{' '}
+                <span className="font-semibold text-gray-700">{cars.length}</span> vehicles
+              </span>
+              {hasMore && (
+                <span className="text-orange-600">
+                  {cars.length - displayedCars.length} more available
+                </span>
+              )}
+            </div>
+          )}
 
         </div>
       </div>
