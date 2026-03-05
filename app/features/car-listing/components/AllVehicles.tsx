@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -27,7 +27,8 @@ interface AllVehiclesProps {
   loggedUser?: UserType;
 }
 
-const AllVehicles: React.FC<AllVehiclesProps> = ({ loggedUser }) => {
+// Inner component that uses useSearchParams
+function VehiclesContent({ loggedUser }: AllVehiclesProps) {
   const searchParams = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -407,16 +408,31 @@ const AllVehicles: React.FC<AllVehiclesProps> = ({ loggedUser }) => {
       )}
 
       {/* Rent Popup */}
-     <CarRentPopUp
-  showPopup={showPopup}
-  selectedCar={selectedCar}
-  closePopup={() => { setShowPopup(false); setSelectedCar(null); }}
-  user={currentUser ? { 
-    id: currentUser.id, 
-    name: `${currentUser.firstName} ${currentUser.lastName}`.trim() 
-  } : undefined}
-/>
+      <CarRentPopUp
+        showPopup={showPopup}
+        selectedCar={selectedCar}
+        closePopup={() => { setShowPopup(false); setSelectedCar(null); }}
+        user={currentUser ? { 
+          id: currentUser.id, 
+          name: `${currentUser.firstName} ${currentUser.lastName}`.trim() 
+        } : undefined}
+      />
     </div>
+  );
+}
+
+// Main exported component with Suspense
+const AllVehicles: React.FC<AllVehiclesProps> = ({ loggedUser }) => {
+  return (
+    <Suspense fallback={
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-gray-100 rounded-xl h-64 animate-pulse" />
+        ))}
+      </div>
+    }>
+      <VehiclesContent loggedUser={loggedUser} />
+    </Suspense>
   );
 };
 
