@@ -272,9 +272,9 @@ const SignUpForm = () => {
             />
             <label htmlFor="agreeToTerms" className="text-sm text-gray-500">
               I agree to the{' '}
-              <Link href="/terms" className="text-orange-600 hover:text-orange-700">Terms</Link>
+              <Link href="/features/TermsAndCondition" className="text-orange-600 hover:text-orange-700">Terms</Link>
               {' '}and{' '}
-              <Link href="/privacy" className="text-orange-600 hover:text-orange-700">Privacy Policy</Link>
+              <Link href="/features/Privacy" className="text-orange-600 hover:text-orange-700">Privacy Policy</Link>
             </label>
           </div>
 

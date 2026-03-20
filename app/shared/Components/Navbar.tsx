@@ -5,7 +5,8 @@ import Setting from "@/app/features/settings/components/Setting";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { Logo as CarLogo } from "../../shared/Components/CarLogo";
+
+import Image from "next/image";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,7 +88,8 @@ const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
           {/*   <CarLogo/> */}
-          <span className="text-base font-bold text-gray-900 tracking-tight">
+{/*           <img src="/Profiles/logo2.svg" alt="AutoRentPro Logo" width={32} height={32} className="w-8 h-8 object-contain" /> 
+ */}          <span className="text-base font-bold text-gray-900 tracking-tight">
               Auto<span className="text-red-500">Rent</span>Pro
             </span>
           </Link>

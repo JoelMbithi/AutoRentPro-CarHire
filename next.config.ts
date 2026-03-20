@@ -4,6 +4,30 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@prisma/client'],
 
+  //  Add image configuration here
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+        port: '',
+        pathname: '/**', 
+      },
+    ],
+  },
+
   webpack: (config, { defaultLoaders }) => {
     // Support .ts and .tsx
     config.resolve!.extensions.push('.ts', '.tsx');
@@ -27,12 +51,12 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // ✅ Add these two lines to ignore errors during build
+  // Ignore errors during build
   eslint: {
-    ignoreDuringBuilds: true, // Ignore ESLint errors
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Ignore TypeScript errors
+    ignoreBuildErrors: true,
   },
 };
 
