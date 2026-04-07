@@ -50,9 +50,9 @@ const LandingBanner = () => {
           >
             Find Your Car
           </Link>
-          <button className="border border-gray-200 hover:border-orange-600 text-gray-500 hover:text-orange-600 text-sm font-semibold px-8 py-4 rounded-none transition-all duration-300 tracking-wide">
+          <Link href='/about' className="border border-gray-200 hover:border-orange-600 text-gray-500 hover:text-orange-600 text-sm font-semibold px-8 py-4 rounded-none transition-all duration-300 tracking-wide">
             How It Works
-          </button>
+          </Link>
         </div>
       </div>
 

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    console.log(`📊 Fetched ${bookings.length} bookings from database (should be 27)`);
+   // console.log(` Fetched ${bookings.length} bookings from database (should be 27)`);
 
     // Calculate customer type based on total spent
     const customerTotalSpent: Record<number, number> = {};

@@ -9,8 +9,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   // Hide Navbar/Footer for multiple routes
   const shouldHideLayout =
-    pathname.startsWith("/features/Admin") || // admin pages
-    pathname.startsWith("/features/Car-Agents/components/agents"); // Car-Agents pages
+  // admin pages
+    pathname.startsWith("/features/Admin") ||
+      // Car-Agents pages
+    pathname.startsWith("/features/Car-Agents/components/agents") ||
+      // Agent pages
+    pathname.startsWith("/features/Agent");
 
   return (
     <>

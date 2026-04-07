@@ -1,4 +1,4 @@
-import CarHireServices from '@/app/features/Our-Services/components/CarHireServices'
+import CarHireServices from '@/app/features/components/CarHireServices'
 import React from 'react'
 
 const page = () => {

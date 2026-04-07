@@ -98,7 +98,7 @@ const CarsDisplay = () => {
 
   return (
     <>
-      <div id="cars-section" className="py-10 bg-gray-50">
+      <div id="cars-section" className="py-10 bg-orange-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
           {/* Header */}

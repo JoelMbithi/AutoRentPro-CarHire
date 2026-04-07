@@ -45,8 +45,18 @@ const SignForm = () => {
           window.dispatchEvent(new Event('user-login'));
         }
         
-        // Use replace instead of push to prevent back button issues
-        router.replace("/");
+        // ROLE-BASED REDIRECT - Check user role from response
+        let redirectUrl = "/";
+        if (data.user?.role === "ADMIN") {
+          redirectUrl = "/features/Admin/Dashboard";
+        } else if (data.user?.role === "AGENT") {
+          redirectUrl = "/features/Agent/Dashboard";
+        } else {
+          redirectUrl = "/";
+        }
+        
+        // Use replace with role-based URL
+        router.replace(redirectUrl);
         
         // Force a hard refresh after a tiny delay to ensure cookie is set
         setTimeout(() => {

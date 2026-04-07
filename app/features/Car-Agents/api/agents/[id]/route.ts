@@ -7,7 +7,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> } // params is a Promise
 ) {
   try {
-    const params = await context.params; // <-- unwrap the promise
+    const params = await context.params; 
     const agentId = Number(params.id);
 
     const agent = await prisma.agent.findUnique({

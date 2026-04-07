@@ -4,10 +4,10 @@ import prisma from "@/lib/prisma";
 // GET - Get single car by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }  // Changed: params is a Promise
+  { params }: { params: Promise<{ id: string }> }  
 ) {
   try {
-    const { id } = await params;  // Added: await params
+    const { id } = await params;  
     const carId = parseInt(id);
 
     if (isNaN(carId)) {

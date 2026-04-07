@@ -191,7 +191,7 @@ const CarHireContact: React.FC = () => {
 </section>
 
       {/* ── Contact info strip ── */}
-      <section className="border-b border-gray-200 bg-gray-50">
+      <section className="border-b border-gray-200 bg-orange-50">
         <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-200">
           {[
             {
@@ -444,7 +444,7 @@ const CarHireContact: React.FC = () => {
       </section>
 
       {/* ── Locations ── */}
-      <section className="py-12 px-6 bg-gray-50">
+      <section className="py-12 px-6 bg-orange-50">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 mb-1">
             Our locations

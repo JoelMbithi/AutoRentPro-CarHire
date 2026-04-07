@@ -1,4 +1,4 @@
-// app/api/dashboard/payments/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       customerPhone: payment.user.phone,
       amount: payment.amount,
       date: payment.createdAt,
-      method: 'MPesa', // Default, you can extend this based on your payment methods
+      method: 'MPesa',
       status: payment.status,
       invoice: `#INV-${payment.id.toString().padStart(3, '0')}`,
       receiptNumber: payment.mpesaReceiptNumber,

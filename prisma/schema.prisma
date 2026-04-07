@@ -93,6 +93,7 @@ model Car {
   power       String
   isAvailable Boolean  @default(true)
   location    String?
+   plateNumber  String? 
   
   // Owner relation
   ownerId     Int?              // Who owns this car (car owner)
@@ -267,8 +268,8 @@ model Agent {
   email        String   @unique
   location     String
   bio          String
-  specialties  String[] // Use PostgreSQL text[] array
-  languages    String[] // Same
+  specialties  String[] 
+  languages    String[] 
   responseTime String
   joined       String
 

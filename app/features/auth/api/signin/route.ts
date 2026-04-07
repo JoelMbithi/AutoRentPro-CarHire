@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, rememberMe } = await request.json();
 
     // Validate input
     if (!email || !password) {
@@ -15,25 +15,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user with ALL profile data
+    // Email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Find user with ALL profile data including cars for agents
     const user = await prisma.user.findUnique({ 
       where: { email },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        phone: true,
-        password: true,
-        role: true,
-        drivingLicense: true,
-        dateOfBirth: true,
-        address: true,
-        city: true,
-        country: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
+        ownedCars: {
+          select: {
+            id: true,
+            make: true,
+            model: true,
+            year: true,
+            image: true
+          }
+        }
       }
     });
 
@@ -54,7 +56,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create token with user data
+    // Role-specific verification checks
+    if (user.role === 'AGENT' && !user.isVerified) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Your account is pending verification. Please wait for admin approval." 
+        },
+        { status: 403 }
+      );
+    }
+
+    // Create token with role and user data
     const token = jwt.sign(
       { 
         id: user.id, 
@@ -62,10 +75,19 @@ export async function POST(request: NextRequest) {
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
+        isVerified: user.isVerified,
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "6d" }
+      { expiresIn: rememberMe ? "7d" : "1d" }
     );
+
+    // Determine dashboard URL based on role
+    let dashboardUrl = '/features/Admin/Dashboard';
+    if (user.role === 'AGENT') {
+      dashboardUrl = '/features/Agent/Dashboard';
+    } else if (user.role === 'CUSTOMER') {
+      dashboardUrl = '/';
+    }
 
     // Remove password from user object
     const { password: _, ...userWithoutPassword } = user;
@@ -75,7 +97,15 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Sign in successful",
-        user: userWithoutPassword,
+        user: {
+          ...userWithoutPassword,
+          ...(user.role === 'AGENT' && {
+            totalCars: user.totalCars,
+            commission: user.commission,
+            cars: user.ownedCars
+          })
+        },
+        dashboardUrl,
       },
       { status: 200 }
     );
@@ -85,7 +115,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 6 * 24 * 60 * 60,
+      maxAge: rememberMe ? 7 * 24 * 60 * 60 : 24 * 60 * 60,
       path: "/",
     });
 
@@ -119,7 +149,7 @@ export async function GET(request: NextRequest) {
         email: true,
         phone: true,
         role: true,
-        // Didn&apos;t select password here
+        isVerified: true,
       }
     });
 
@@ -129,7 +159,13 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       authenticated: true,
-      user,
+      user: {
+        ...user,
+        ...(user.role === 'AGENT' && {
+          // Include agent-specific data if needed
+          
+        })
+      },
     });
 
   } catch (error) {

@@ -1,11 +1,8 @@
 
 
-// ------------------------
-// Request body for signup
-
 import { UserRole } from "@/app/generated/prisma/enums";
 
-// ------------------------
+
 export type SignupRequestBody = {
   firstName: string;
   lastName: string;
@@ -17,9 +14,9 @@ export type SignupRequestBody = {
   address?: string;
 };
 
-// ------------------------
+
 // Prisma user select type
-// ------------------------
+
 export type CreatedUser = {
   id: number;
   firstName: string;
@@ -31,9 +28,9 @@ export type CreatedUser = {
   createdAt: Date;
 };
 
-// ------------------------
+
 // Response types for signup
-// ------------------------
+
 export type SignupSuccessResponse = {
   success: true;
   message: string;

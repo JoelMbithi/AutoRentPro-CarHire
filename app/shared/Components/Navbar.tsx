@@ -7,8 +7,10 @@ import React, { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -18,10 +20,26 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      await fetch("/api/auth/signout", { method: "POST", credentials: "include" });
-      setIsSignedIn(false);
-      setUser(null);
-      setProfileDropdownOpen(false);
+      const response = await fetch("/features/auth/api/signout", { 
+        method: "POST", 
+        credentials: "include" 
+      });
+      
+      if (response.ok) {
+       
+        setIsSignedIn(false);
+        setUser(null);
+        setProfileDropdownOpen(false);
+        setMenuOpen(false);
+        
+        // Clear localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+       
+        router.push('/');
+        router.refresh();
+      }
     } catch (error) {
       console.error("Sign out error:", error);
     }
@@ -29,24 +47,54 @@ const Navbar = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch("/features/Profile/api/profile", { method: "GET", credentials: "include" });
+      const res = await fetch("/features/Profile/api/profile", { 
+        method: "GET", 
+        credentials: "include" 
+      });
       const data = await res.json();
-      if (data.success && data.user) { setIsSignedIn(true); setUser(data.user); }
-      else await handleAuthCheck();
-    } catch { await handleAuthCheck(); }
+      if (data.success && data.user) { 
+        setIsSignedIn(true); 
+        setUser(data.user); 
+      } else { 
+        await handleAuthCheck(); 
+      }
+    } catch { 
+      await handleAuthCheck(); 
+    }
   };
 
   const handleAuthCheck = async () => {
     try {
-      const res = await fetch("/features/auth/api/signin", { method: "GET", credentials: "include" });
+      const res = await fetch("/features/auth/api/signin", { 
+        method: "GET", 
+        credentials: "include" 
+      });
       const data = await res.json();
-      if (data.authenticated) { setIsSignedIn(true); setUser(data.user); }
-      else { setIsSignedIn(false); setUser(null); }
-    } catch { setIsSignedIn(false); setUser(null); }
+      if (data.authenticated && data.user) { 
+        setIsSignedIn(true); 
+        setUser(data.user); 
+      } else { 
+        setIsSignedIn(false); 
+        setUser(null); 
+      }
+    } catch { 
+      setIsSignedIn(false); 
+      setUser(null); 
+    }
   };
 
-  const handleProfile = () => { setOpenProfile(true); setProfileDropdownOpen(false); setMenuOpen(false); };
-  const handleSetting = () => { setOpenSetting(true); setProfileDropdownOpen(false); setMenuOpen(false); };
+  const handleProfile = () => { 
+    setOpenProfile(true); 
+    setProfileDropdownOpen(false); 
+    setMenuOpen(false); 
+  };
+  
+  const handleSetting = () => { 
+    setOpenSetting(true); 
+    setProfileDropdownOpen(false); 
+    setMenuOpen(false); 
+  };
+  
   const handleProfileUpdate = (updatedUser: any) => setUser(updatedUser);
 
   const getUserInitials = () => {
@@ -54,7 +102,29 @@ const Navbar = () => {
     return `${user.firstName?.charAt(0) || ""}${user.lastName?.charAt(0) || ""}`.toUpperCase() || "U";
   };
 
-  useEffect(() => { fetchUserProfile(); }, []);
+  useEffect(() => { 
+    fetchUserProfile(); 
+  }, []);
+
+  // Listen for login/logout events
+  useEffect(() => {
+    const handleUserLogin = () => {
+      fetchUserProfile();
+    };
+    
+    const handleUserLogout = () => {
+      setIsSignedIn(false);
+      setUser(null);
+    };
+    
+    window.addEventListener('user-login', handleUserLogin);
+    window.addEventListener('user-logout', handleUserLogout);
+    
+    return () => {
+      window.removeEventListener('user-login', handleUserLogin);
+      window.removeEventListener('user-logout', handleUserLogout);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -72,12 +142,11 @@ const Navbar = () => {
   }, [openProfile, openSetting]);
 
   const navLinks = [
-    { name: "Home",     href: "/" },
+    { name: "Home", href: "/" },
     { name: "Our Fleet", href: "/vehicles" },
     { name: "About Us", href: "/about" },
     { name: "Services", href: "/services" },
-    { name: "Contact",  href: "/contact" },
-    {name:"Agents", href:"/agents"},
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
@@ -87,9 +156,7 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
-          {/*   <CarLogo/> */}
-{/*           <img src="/Profiles/logo2.svg" alt="AutoRentPro Logo" width={32} height={32} className="w-8 h-8 object-contain" /> 
- */}          <span className="text-base font-bold text-gray-900 tracking-tight">
+            <span className="text-base font-bold text-gray-900 tracking-tight">
               Auto<span className="text-red-500">Rent</span>Pro
             </span>
           </Link>
@@ -119,13 +186,12 @@ const Navbar = () => {
               Our Agents
             </Link>
 
-            {isSignedIn ? (
+            {isSignedIn && user ? (
               <div className="relative">
                 <button
                   className="profile-dropdown-trigger flex items-center gap-2.5 cursor-pointer"
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 >
-                  {/* Avatar */}
                   <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center shrink-0">
                     <span className="text-white text-xs font-bold">{getUserInitials()}</span>
                   </div>
@@ -136,7 +202,7 @@ const Navbar = () => {
                     className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
-
+            
                 {profileDropdownOpen && (
                   <div className="profile-dropdown-content absolute top-full right-0 mt-2 w-52 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden z-50">
                     <div className="px-4 py-3 border-b border-gray-100">
@@ -146,7 +212,7 @@ const Navbar = () => {
                     <div className="p-1.5">
                       {[
                         { label: "My Profile", action: handleProfile },
-                        { label: "Settings",   action: handleSetting },
+                        { label: "Settings", action: handleSetting },
                       ].map((item) => (
                         <button
                           key={item.label}
@@ -207,9 +273,18 @@ const Navbar = () => {
                   {item.name}
                 </Link>
               ))}
-
+              <Link
+                href="/agents"
+                onClick={() => setMenuOpen(false)}
+                className="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Our Agents
+              </Link>
               <div className="pt-4 mt-2">
-                {isSignedIn ? (
+                {isSignedIn && user ? (
                   <>
                     <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
                       <div className="w-9 h-9 bg-orange-600 rounded-full flex items-center justify-center shrink-0">
@@ -222,7 +297,7 @@ const Navbar = () => {
                     </div>
                     {[
                       { label: "My Profile", action: handleProfile, color: "text-gray-700" },
-                      { label: "Settings",   action: handleSetting, color: "text-gray-700" },
+                      { label: "Settings", action: handleSetting, color: "text-gray-700" },
                     ].map((item) => (
                       <button
                         key={item.label}

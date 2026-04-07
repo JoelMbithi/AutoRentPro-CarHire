@@ -33,18 +33,18 @@ export const paymentService = {
   async getTotalRevenue(timeRange?: TimeRange): Promise<number> {
     try {
       const params = new URLSearchParams();
-      
+
       if (timeRange) {
         const dates = getDateRangeFromTimeRange(timeRange);
         if (dates.startDate) params.append('startDate', dates.startDate.toISOString());
         if (dates.endDate) params.append('endDate', dates.endDate.toISOString());
       }
-      
+
       params.append('status', 'COMPLETED');
-      
+
       const response = await fetch(`/api/dashboard/payments?${params.toString()}`);
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data.reduce((sum: number, payment: any) => sum + payment.amount, 0);
       }
@@ -60,28 +60,28 @@ export const paymentService = {
     try {
       const params = new URLSearchParams();
       const dates = getDateRangeFromTimeRange(timeRange);
-      
+
       // Current period
       if (dates.startDate) params.append('startDate', dates.startDate.toISOString());
       if (dates.endDate) params.append('endDate', dates.endDate.toISOString());
       params.append('status', 'COMPLETED');
-      
+
       const currentResponse = await fetch(`/api/dashboard/payments?${params.toString()}`);
       const currentData = await currentResponse.json();
-      
+
       // Previous period for comparison
       const previousDates = getPreviousPeriodDates(timeRange);
       const prevParams = new URLSearchParams();
       if (previousDates.startDate) prevParams.append('startDate', previousDates.startDate.toISOString());
       if (previousDates.endDate) prevParams.append('endDate', previousDates.endDate.toISOString());
       prevParams.append('status', 'COMPLETED');
-      
+
       const previousResponse = await fetch(`/api/dashboard/payments?${prevParams.toString()}`);
       const previousData = await previousResponse.json();
-      
+
       const currentTotal = currentData.data?.reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
       const previousTotal = previousData.data?.reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
-      
+
       // Calculate percentage change
       let change = '0%';
       if (previousTotal > 0) {
@@ -90,14 +90,14 @@ export const paymentService = {
       } else if (currentTotal > 0) {
         change = '+100%';
       }
-      
+
       return {
         total: currentTotal,
         previousTotal,
         change,
         count: currentData.data?.length || 0
       };
-      
+
     } catch (error) {
       console.error('Error fetching revenue summary:', error);
       return { total: 0, previousTotal: 0, change: '0%', count: 0 };
@@ -116,7 +116,7 @@ export const paymentService = {
   } = {}) {
     try {
       const searchParams = new URLSearchParams();
-      
+
       if (params.page) searchParams.append('page', params.page.toString());
       if (params.limit) searchParams.append('limit', params.limit.toString());
       if (params.status) searchParams.append('status', params.status);
@@ -124,10 +124,10 @@ export const paymentService = {
       if (params.startDate) searchParams.append('startDate', params.startDate);
       if (params.endDate) searchParams.append('endDate', params.endDate);
       if (params.method) searchParams.append('method', params.method);
-      
+
       const response = await fetch(`/api/dashboard/payments?${searchParams.toString()}`);
       const data = await response.json();
-      
+
       return data;
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -140,11 +140,11 @@ export const paymentService = {
     try {
       const response = await fetch(`/features/Admin/Dashboard/api/dashboard/stats?timeRange=${timeRange}`);
       const data = await response.json();
-      
+
       if (data.success) {
         return data.data;
       }
-      
+
       // Return default stats if API fails
       return {
         totalRevenue: 0,
@@ -174,9 +174,9 @@ export const paymentService = {
 function getDateRangeFromTimeRange(timeRange: TimeRange): { startDate: Date | null; endDate: Date | null } {
   const now = new Date();
   const startDate = new Date();
-  
+
   switch (timeRange) {
-    case 'day':  // ✅ FIXED: Changed from 'today' to 'day'
+    case 'day':  //  FIXED: Changed from 'today' to 'day'
       startDate.setHours(0, 0, 0, 0);
       return { startDate, endDate: now };
     case 'week':
@@ -196,12 +196,12 @@ function getDateRangeFromTimeRange(timeRange: TimeRange): { startDate: Date | nu
 function getPreviousPeriodDates(timeRange: TimeRange): { startDate: Date | null; endDate: Date | null } {
   const now = new Date();
   const { startDate, endDate } = getDateRangeFromTimeRange(timeRange);
-  
+
   if (!startDate || !endDate) return { startDate: null, endDate: null };
-  
+
   const periodLength = endDate.getTime() - startDate.getTime();
   const previousEndDate = new Date(startDate.getTime() - 1);
   const previousStartDate = new Date(previousEndDate.getTime() - periodLength);
-  
+
   return { startDate: previousStartDate, endDate: previousEndDate };
 }

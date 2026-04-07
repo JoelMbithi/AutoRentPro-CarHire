@@ -8,40 +8,87 @@ import {
 import Header from "./Components/Headers"
 import Sidebar from './Components/Sidebar';
 import DashboardContent from './Components/DashboardContent';
-import FleetContent from './Components/FleetContent';
-import BookingsContent from './Components/BookingsContent';
-import CustomersContent from './Components/CustomersContent';
-import PaymentsContent from './Components/PaymentsContent';
+import FleetContent from './Admin_Fleet/FleetContent';
+import BookingsContent from './Admin_Bookings/BookingsContent';
+import CustomersContent from './Admin_Customer/CustomersContent';
+import PaymentsContent from './Admin_Payment/PaymentsContent';
 import { StatItem, Booking, FleetVehicle, NavItem, TimeRange, FilterType } from '../../car-listing/types';
 import { dashboardService, type DashboardStats as ApiDashboardStats, type RecentBooking as ApiRecentBooking, type FleetVehicle as ApiFleetVehicle } from './api/dashboardService';
 
 import ReportsContent from './Components/Admin_Report/ReportsContent';
 import MessageContent from './Components/Admin_Message/MessageContent';
 import { useRouter } from 'next/navigation';
-import { paymentService, RevenueSummary } from './api/dashboard/payments/paymentService'; // ✅ Add RevenueSummary here
-import AdminSettingsPage from './Components/Adimn_Settings/AdminSetting';
+import { paymentService, RevenueSummary } from './api/dashboard/payments/paymentService';
+import AdminSettingsPage from './Adimn_Settings/AdminSetting';
 
 const Dashboard = () => {
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen]       = useState(true);
-  const [activeTab, setActiveTab]           = useState('dashboard');
-  const [timeRange, setTimeRange]           = useState<TimeRange>('month');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [timeRange, setTimeRange] = useState<TimeRange>('month');
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
-  const [loading, setLoading]               = useState(false);
-  const [apiStats, setApiStats]             = useState<ApiDashboardStats | null>(null);
-  const [apiBookings, setApiBookings]       = useState<ApiRecentBooking[]>([]);
-  const [apiFleet, setApiFleet]             = useState<ApiFleetVehicle[]>([]);
-  const [revenueSummary, setRevenueSummary] = useState<RevenueSummary | null>(null); // Now works ✅
-  const [openDropdown, setOpenDropdown]     = useState<'profile' | null>(null);
-  const [user, setUser]                     = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [apiStats, setApiStats] = useState<ApiDashboardStats | null>(null);
+  const [apiBookings, setApiBookings] = useState<ApiRecentBooking[]>([]);
+  const [apiFleet, setApiFleet] = useState<ApiFleetVehicle[]>([]);
+  const [revenueSummary, setRevenueSummary] = useState<RevenueSummary | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<'profile' | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-  // Get user from localStorage on mount
+  // ROLE-BASED ACCESS CONTROL - Check if user is ADMIN
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check auth status from API
+        const response = await fetch("/features/auth/api/signin", {
+          method: "GET",
+          credentials: "include",
+        });
+        
+        const data = await response.json();
+        
+        if (data.authenticated && data.user?.role === "ADMIN") {
+          setUser(data.user);
+          setIsAuthorized(true);
+        } else {
+          // Also check localStorage as fallback
+          const userData = localStorage.getItem('user');
+          if (userData) {
+            const parsedUser = JSON.parse(userData);
+            if (parsedUser.role === "ADMIN") {
+              setUser(parsedUser);
+              setIsAuthorized(true);
+            } else {
+              setIsAuthorized(false);
+              router.replace('/auth/signin');
+            }
+          } else {
+            setIsAuthorized(false);
+            router.replace('/auth/signin');
+          }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsAuthorized(false);
+        router.replace('/auth/signin');
+      }
+    };
+    
+    checkAuth();
+  }, [router]);
+
+  // Get user from localStorage on mount (fallback)
   useEffect(() => {
     const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    if (userData && !user) {
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.role === "ADMIN") {
+        setUser(parsedUser);
+        setIsAuthorized(true);
+      }
     }
-  }, []);
+  }, [user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -56,6 +103,8 @@ const Dashboard = () => {
 
   // Fetch all data including revenue
   useEffect(() => {
+    if (!isAuthorized) return; // Only fetch data if authorized
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -65,26 +114,25 @@ const Dashboard = () => {
               dashboardService.getDashboardStats(timeRange),
               dashboardService.getRecentBookings(10),
               dashboardService.getFleetVehicles(),
-              paymentService.getRevenueSummary(timeRange) // Fetch revenue summary
+              paymentService.getRevenueSummary(timeRange)
             ]);
-            setApiStats(s); 
-            setApiBookings(b); 
+            setApiStats(s);
+            setApiBookings(b);
             setApiFleet(f);
             setRevenueSummary(r);
             break;
           }
           case 'fleet':
-            setApiFleet(await dashboardService.getFleetVehicles()); 
+            setApiFleet(await dashboardService.getFleetVehicles());
             break;
           case 'bookings':
-            setApiBookings(await dashboardService.getRecentBookings(50)); 
+            setApiBookings(await dashboardService.getRecentBookings(50));
             break;
           case 'payments': {
             const r = await paymentService.getRevenueSummary(timeRange);
             setRevenueSummary(r);
             break;
           }
-          
         }
       } catch (e) {
         console.error('Error fetching data:', e);
@@ -93,45 +141,62 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [activeTab, timeRange]);
+  }, [activeTab, timeRange, isAuthorized]);
+
+  // Show loading screen while checking auth
+  if (isAuthorized === null) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-orange-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authorization...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authorized, don't render anything 
+  if (!isAuthorized) {
+    return null;
+  }
 
   // Create stats array with revenue from payment service
   const stats: StatItem[] = apiStats && revenueSummary ? [
-    { 
-      title: 'Total Revenue',         
-      value: `KSH ${revenueSummary.total.toLocaleString()}`, 
-      change: revenueSummary.change,  
-      icon: DollarSign,  
-      color: 'bg-emerald-500', 
-      detail: 'Current period',    
-      trend: revenueSummary.change.includes('+') ? 'up' : 'down' 
+    {
+      title: 'Total Revenue',
+      value: `KSH ${revenueSummary.total.toLocaleString()}`,
+      change: revenueSummary.change,
+      icon: DollarSign,
+      color: 'bg-emerald-500',
+      detail: 'Current period',
+      trend: revenueSummary.change.includes('+') ? 'up' : 'down'
     },
-    { 
-      title: 'Active Rentals',         
-      value: apiStats.activeBookings.toString(),              
-      change: apiStats.bookingChange || '+0%',  
-      icon: CarFront,    
-      color: 'bg-blue-500',    
-      detail: 'Currently on rent', 
-      trend: 'up' as const 
+    {
+      title: 'Active Rentals',
+      value: apiStats.activeBookings.toString(),
+      change: apiStats.bookingChange || '+0%',
+      icon: CarFront,
+      color: 'bg-blue-500',
+      detail: 'Currently on rent',
+      trend: 'up' as const
     },
-    { 
-      title: 'Pending Actions',        
-      value: apiStats.pendingBookings.toString(),             
-      change: '-5.1%',                 
-      icon: AlertCircle, 
-      color: 'bg-amber-500',   
-      detail: 'Check-ins & approvals', 
-      trend: 'down' as const 
+    {
+      title: 'Pending Actions',
+      value: apiStats.pendingBookings.toString(),
+      change: '-5.1%',
+      icon: AlertCircle,
+      color: 'bg-amber-500',
+      detail: 'Check-ins & approvals',
+      trend: 'down' as const
     },
-    { 
-      title: 'Customer Satisfaction',  
-      value: apiStats.customerSatisfaction.toFixed(1),       
-      change: '+0.3',                  
-      icon: Star,        
-      color: 'bg-violet-500',  
-      detail: 'Avg. rating',       
-      trend: 'up' as const 
+    {
+      title: 'Customer Satisfaction',
+      value: apiStats.customerSatisfaction.toFixed(1),
+      change: '+0.3',
+      icon: Star,
+      color: 'bg-violet-500',
+      detail: 'Avg. rating',
+      trend: 'up' as const
     },
   ] : [];
 
@@ -145,23 +210,24 @@ const Dashboard = () => {
   const fleetVehicles: FleetVehicle[] = apiFleet.map(v => ({
     id: v.id, name: v.name, plate: v.plate, status: v.status,
     rating: v.rating, price: v.price, type: v.type,
-     year: v.year || '2024', 
-  make: v.make || v.name.split(' ')[0] || 'Unknown', 
-  model: v.model || v.name.split(' ').slice(1).join(' ') || 'Unknown', 
+    year: v.year || '2024',
+    make: v.make || v.name.split(' ')[0] || 'Unknown',
+    model: v.model || v.name.split(' ').slice(1).join(' ') || 'Unknown',
     fuel: v.fuel, location: v.location, nextService: v.nextService, image: v.image,
+    seats: v.seats ?? 4,
     currentRenter: v.currentRenter,
   }));
 
   const navItems: NavItem[] = [
-    { id: 'dashboard',   icon: Home,         label: 'Dashboard',        count: null,                                                                                  badge: null     },
-    { id: 'fleet',       icon: Car,          label: 'Fleet',            count: apiStats?.totalCars?.toString() || '28',                                               badge: 'new'    },
-    { id: 'bookings',    icon: CalendarDays, label: 'Bookings',         count: ((apiStats?.activeBookings || 0) + (apiStats?.pendingBookings || 0)).toString(),       badge: null     },
-    { id: 'customers',   icon: Users,        label: 'Customers',        count: apiStats?.totalCustomers?.toLocaleString() || '1.2K',                                  badge: null     },
-    { id: 'payments',    icon: CreditCard,   label: 'Payments',         count: revenueSummary?.count?.toString() || apiStats?.totalTransactions?.toString() || '86',  badge: null     },
-    { id: 'reports',     icon: FileBarChart, label: 'Reports',          count: null,                                                                                  badge: null     },
-    { id: 'messages',    icon: MessageSquare,label: 'Messages',         count: '12',                                                                                  badge: '3'      },
-    { id: 'maintenance', icon: Wrench,       label: 'Maintenance',      count: '5',                                                                                   badge: 'urgent' },
-    { id: 'settings',    icon: Settings,     label: 'Settings',         count: null,                                                                                  badge: null     },
+    { id: 'dashboard', icon: Home, label: 'Dashboard', count: null, badge: null },
+    { id: 'fleet', icon: Car, label: 'Fleet', count: apiStats?.totalCars?.toString() || '28', badge: 'new' },
+    { id: 'bookings', icon: CalendarDays, label: 'Bookings', count: ((apiStats?.activeBookings || 0) + (apiStats?.pendingBookings || 0)).toString(), badge: null },
+    { id: 'customers', icon: Users, label: 'Customers', count: apiStats?.totalCustomers?.toLocaleString() || '1.2K', badge: null },
+    { id: 'payments', icon: CreditCard, label: 'Payments', count: revenueSummary?.count?.toString() || apiStats?.totalTransactions?.toString() || '86', badge: null },
+    { id: 'reports', icon: FileBarChart, label: 'Reports', count: null, badge: null },
+    { id: 'messages', icon: MessageSquare, label: 'Messages', count: '12', badge: '3' },
+    { id: 'maintenance', icon: Wrench, label: 'Maintenance', count: '5', badge: 'urgent' },
+    { id: 'settings', icon: Settings, label: 'Settings', count: null, badge: null },
   ];
 
   const handleRefresh = async () => {
@@ -174,18 +240,23 @@ const Dashboard = () => {
         dashboardService.getFleetVehicles(),
         paymentService.getRevenueSummary(timeRange)
       ]);
-      setApiStats(s); 
-      setApiBookings(b); 
+      setApiStats(s);
+      setApiBookings(b);
       setApiFleet(f);
       setRevenueSummary(r);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear cookies by calling logout endpoint
+    await fetch("/api/auth/signout", {
+      method: "POST",
+      credentials: "include",
+    });
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.push('/features/Admin/Auth/login');
+    router.push('/auth/signin');
   };
 
   const renderContent = () => {
@@ -197,33 +268,33 @@ const Dashboard = () => {
       );
     }
     switch (activeTab) {
-      case 'dashboard':    
-        return <DashboardContent 
-          stats={stats} 
-          recentBookings={recentBookings} 
-          fleetVehicles={fleetVehicles} 
-          timeRange={timeRange} 
-          setTimeRange={setTimeRange} 
-          selectedFilter={selectedFilter} 
-          setSelectedFilter={setSelectedFilter} 
+      case 'dashboard':
+        return <DashboardContent
+          stats={stats}
+          recentBookings={recentBookings}
+          fleetVehicles={fleetVehicles}
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
         />;
-      case 'fleet':        
+      case 'fleet':
         return <FleetContent fleetVehicles={fleetVehicles} />;
-      case 'bookings':     
+      case 'bookings':
         return <BookingsContent recentBookings={recentBookings} />;
-      case 'customers':    
+      case 'customers':
         return <CustomersContent />;
-      case 'payments':     
+      case 'payments':
         return <PaymentsContent revenueSummary={revenueSummary} timeRange={timeRange} setTimeRange={setTimeRange} />;
-      case 'reports':      
+      case 'reports':
         return <ReportsContent />;
-      case 'messages':     
+      case 'messages':
         return <MessageContent />;
-      case 'maintenance':  
+      case 'maintenance':
         return <div className="p-8 text-center text-gray-400">Maintenance — coming soon</div>;
-      case 'settings':     
+      case 'settings':
         return <AdminSettingsPage />;
-      default:             
+      default:
         return <div className="p-8 text-center text-gray-400">Select a section from the sidebar</div>;
     }
   };

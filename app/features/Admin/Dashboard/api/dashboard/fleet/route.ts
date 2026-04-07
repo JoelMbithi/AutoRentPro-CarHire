@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { SiBeats } from 'react-icons/si';
 
 export async function GET(request: NextRequest) {
   try {
@@ -107,6 +108,7 @@ export async function GET(request: NextRequest) {
         status: currentStatus,
         year:car.year,
         make:car.make,
+        seats: car.seats || 5,
         model:car.model,
         rating: car.rating,
         price: `ksh${car.price}/day`,

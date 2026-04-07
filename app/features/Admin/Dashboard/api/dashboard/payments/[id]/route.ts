@@ -6,10 +6,10 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }  // Changed: params is a Promise
+  { params }: { params: Promise<{ id: string }> }  
 ) {
   try {
-    const { id } = await params;  // Added: await params
+    const { id } = await params;  
     const paymentId = parseInt(id);
     
     const payment = await prisma.payment.findUnique({
@@ -105,7 +105,7 @@ export async function GET(
       } : null,
       amount: payment.amount,
       status: payment.status,
-      method: 'MPesa', // Default
+      method: 'MPesa', 
       invoice: `#INV-${payment.id.toString().padStart(3, '0')}`,
       receiptNumber: payment.mpesaReceiptNumber,
       accountReference: payment.accountReference,

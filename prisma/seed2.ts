@@ -15,7 +15,7 @@ const prisma = new PrismaClient({
 // Define all available categories from your enum
 const categories = [
   "ECONOMY",
-  "COMPACT", 
+  "COMPACT",
   "MIDSIZE",
   "STANDARD",
   "FULLSIZE",
@@ -153,7 +153,7 @@ const getPriceByCategory = (category: Category): string => {
     SPORTS: [180, 400],
     MINIVAN: [100, 180],
   };
-  
+
   const [min, max] = priceRanges[category];
   return getRandomNumber(min, max).toString();
 };
@@ -178,7 +178,7 @@ const getSeatsByCategory = (category: Category): number => {
     SPORTS: [2, 4],
     MINIVAN: [7, 8],
   };
-  
+
   return getRandomItem(seatMap[category]);
 };
 
@@ -194,7 +194,7 @@ const getPowerByCategory = (category: Category): string => {
     SPORTS: ['300-400 hp', '400-500 hp', '500+ hp'],
     MINIVAN: ['180-220 hp', '220-260 hp'],
   };
-  
+
   return getRandomItem(powerRanges[category]);
 };
 
@@ -211,7 +211,7 @@ const getDriveType = (category: Category): DriveType => {
     SPORTS: [DriveType.RWD, DriveType.AWD, DriveType.RWD],
     MINIVAN: [DriveType.FWD, DriveType.FWD, DriveType.AWD],
   };
-  
+
   return getRandomItem(driveOptions[category]);
 };
 
@@ -227,23 +227,23 @@ const locations = ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika',
 
 async function clearDatabase() {
   console.log('🧹 Clearing database in correct order...');
-  
+
   // Delete in order of dependencies (child tables first)
   console.log('  - Deleting payments...');
   await prisma.payment.deleteMany({});
-  
+
   console.log('  - Deleting bookings...');
   await prisma.booking.deleteMany({});
-  
+
   console.log('  - Deleting cars...');
   await prisma.car.deleteMany({});
-  
-  console.log('✅ Database cleared successfully');
+
+  console.log(' Database cleared successfully');
 }
 
 async function seedCars() {
   console.log('🌱 Starting car seeding with real images...');
-  
+
   try {
     // Get an admin user to set as manager
     const admin = await prisma.user.findFirst({
@@ -254,19 +254,19 @@ async function seedCars() {
         ]
       }
     });
-    
+
     if (!admin) {
       console.log('⚠️ No admin found. Cars will be created without a manager.');
     }
 
     // Clear existing data in correct order
     await clearDatabase();
-    
+
     // Calculate cars per category (60 cars across 9 categories = ~6-7 per category)
     const carsPerCategory = Math.floor(60 / categories.length);
     const remainingCars = 60 - (carsPerCategory * categories.length);
-    
-    console.log(`📊 Will create ${carsPerCategory} cars per category, with ${remainingCars} extra distributed`);
+
+    console.log(` Will create ${carsPerCategory} cars per category, with ${remainingCars} extra distributed`);
 
     const carDataArray: Prisma.CarCreateInput[] = [];
 
@@ -290,7 +290,7 @@ async function seedCars() {
         const year = getRandomNumber(2020, 2024).toString();
         const price = getPriceByCategory(category);
         const image = getRandomItem(categoryImages);
-        
+
         const carData: Prisma.CarCreateInput = {
           make,
           model,
@@ -316,21 +316,21 @@ async function seedCars() {
 
     // Create all cars
     console.log(`\n💾 Creating ${carDataArray.length} cars in database...`);
-    
+
     let createdCount = 0;
     for (const carData of carDataArray) {
       await prisma.car.create({
         data: carData,
       });
       createdCount++;
-      
+
       if (createdCount % 10 === 0) {
-        console.log(`  ✅ Created ${createdCount} cars...`);
+        console.log(`   Created ${createdCount} cars...`);
       }
     }
 
     console.log(`\n🎉 Successfully created ${createdCount} cars with real images!`);
-    
+
     // Print summary by category
     const summary = await Promise.all(categories.map(async (category) => {
       const count = await prisma.car.count({
@@ -338,7 +338,7 @@ async function seedCars() {
       });
       return `${category}: ${count} cars`;
     }));
-    
+
     console.log('\n📈 Summary by category:');
     summary.forEach(line => console.log(`  ${line}`));
 
@@ -347,7 +347,7 @@ async function seedCars() {
       take: 5,
       orderBy: { id: 'desc' }
     });
-    
+
     console.log('\n🚗 Sample of created cars:');
     sampleCars.forEach(car => {
       console.log(`  - ${car.make} ${car.model} (${car.year}): ${car.category} - $${car.price}/day`);

@@ -254,5 +254,4 @@ export async function GET (request:NextRequest,
 
 
 
-/* featured cars  */
 

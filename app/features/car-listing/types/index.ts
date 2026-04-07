@@ -56,6 +56,7 @@ export interface FleetVehicle {
   make: string;
   model: string;
   rating: number;
+  seats: number;
   price: string;
   type: string;
   fuel: string;

@@ -204,7 +204,7 @@ export async function GET(
       year: vehicle.year,
       price: vehicle.price,
       fuel: vehicle.fuelType,
-      seats: vehicle.seats,
+      seats: vehicle.seats || 5,
       gear: vehicle.transmission,
       drive: vehicle.drive,
       type: vehicle.category,

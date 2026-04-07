@@ -3,68 +3,121 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const features = [
-  { title: "Award Winning",   desc: "5-time winner of Best Luxury Rental Service with 50,000+ satisfied customers worldwide." },
-  { title: "Fully Insured",   desc: "Comprehensive coverage, zero deductibles, and 24/7 roadside assistance on every booking." },
-  { title: "Instant Booking", desc: "Reserve your vehicle in under 2 minutes with our streamlined digital process." },
-  { title: "Global Network",  desc: "Pick up and drop off at 200+ locations across 25 countries." },
+const services = [
+  {
+    num: "01",
+    title: "Self-Drive Hire",
+    desc: "Pick up your vehicle, drive at your own pace. Full insurance and breakdown cover included on every booking.",
+  },
+  {
+    num: "02",
+    title: "Corporate Accounts",
+    desc: "Reliable transport for businesses — staff travel, client transfers, and site visits with invoicing available.",
+  },
+  {
+    num: "03",
+    title: "Airport Transfers",
+    desc: "Pre-booked pickups and drop-offs at JKIA and Wilson Airport. On time, every time.",
+  },
+  {
+    num: "04",
+    title: "Upcountry & Long-Distance",
+    desc: "4WDs and larger vehicles for travel outside Nairobi. Cross-border hire available on request.",
+  },
+];
+
+const reasons = [
+  {
+    title: "No Hidden Charges",
+    desc: "The quoted rate is what you pay. Fuel, mileage terms, and deposit amounts are disclosed upfront before you confirm.",
+  },
+  {
+    title: "Vehicles Ready to Go",
+    desc: "Every car is inspected, cleaned, and fuelled before collection. You sign the condition report, then you drive.",
+  },
+  {
+    title: "Flexible Hire Periods",
+    desc: "Daily, weekly, or monthly hire at consistent rates. No penalties for extending — just notify us in advance.",
+  },
+  {
+    title: "24/7 Breakdown Support",
+    desc: "If anything goes wrong on the road, call us. Roadside assistance is included with every rental at no extra cost.",
+  },
 ];
 
 const promises = [
-  { title: "Premium Maintenance",    desc: "Every vehicle passes a 150-point inspection before each rental, maintained to manufacturer standards." },
-  { title: "Personalized Concierge", desc: "Dedicated account managers for corporate clients. We remember your preferences every time." },
-  { title: "Flexible Cancellation",  desc: "Free cancellation up to 24 hours before pickup. Completely transparent pricing, no surprises." },
-  { title: "Latest Technology",      desc: "GPS, premium sound, 360° cameras, and collision avoidance systems across the entire fleet." },
-];
-
-const services = [
-  { title: "Luxury Fleet",      desc: "Premium vehicles from sleek sedans to powerful SUVs — meticulously maintained for your comfort." },
-  { title: "Unmatched Service", desc: "White-glove attention from booking to return. Every detail handled perfectly." },
-  { title: "Flexible Plans",    desc: "Daily, weekly, or monthly rentals. No hidden fees, comprehensive insurance included." },
-  { title: "Nationwide Cover",  desc: "Multiple pickup and drop-off points across the country for business or leisure." },
+  {
+    title: "Insured & Compliant",
+    desc: "All vehicles carry third-party liability cover as required by Kenyan law, plus CDW and theft protection.",
+  },
+  {
+    title: "Regular Servicing",
+    desc: "Fleet vehicles are serviced on a fixed schedule. Tyres, brakes, and engine health are checked before each hire.",
+  },
+  {
+    title: "Free Cancellation",
+    desc: "Cancel up to 48 hours before pickup at no charge. Late cancellations are subject to a 25% fee.",
+  },
+  {
+    title: "Simple Documentation",
+    desc: "You need a valid driver's licence, a credit or debit card, and a government-issued ID. Nothing more.",
+  },
 ];
 
 const Edition = () => {
   return (
-    <div className="w-full">
+    <div className="w-full bg-white">
 
       {/* ── Hero ── */}
-      <div className="flex flex-col md:flex-row items-center gap-12 px-8 md:px-16 py-20 max-w-7xl mx-auto">
-        <div className="flex flex-col flex-1">
-          <p className="text-xs text-gray-400 uppercase tracking-wider mb-4">AutoRentPro</p>
-          <h1 className="text-5xl sm:text-6xl font-bold leading-none mb-6 text-gray-900">
-            Car<br />Rental<br />
-            <span className="text-orange-600">Experience.</span>
+      <div className="flex flex-col md:flex-row items-center gap-10 px-6 sm:px-10 md:px-16 py-14 max-w-6xl mx-auto">
+        <div className="flex flex-col flex-1 gap-5">
+          <p className="text-xs text-orange-500 uppercase tracking-widest font-medium">AutoRentPro — Nairobi, Kenya</p>
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-gray-900">
+            Hire a car.<br />
+            Drive with<br />
+            <span className="text-orange-500">confidence.</span>
           </h1>
-          <p className="text-sm text-gray-500 leading-relaxed mb-8 max-w-sm">
-            Luxury, comfort, and performance vehicles — ready for your next journey across Kenya and beyond.
+          <p className="text-sm text-gray-500 leading-relaxed max-w-sm">
+            A straightforward car hire service for individuals, families, and businesses across Kenya.
+            Well-maintained vehicles, honest pricing, and support on the road.
           </p>
-          <div className="flex gap-3">
-            <Link href="/vehicles" className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-6 py-2.5 rounded transition-colors">
-              Explore Fleet
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/vehicles"
+              className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+            >
+              Browse Fleet
             </Link>
-            <Link href="/about" className="border border-gray-300 hover:border-gray-400 text-gray-600 text-sm font-medium px-6 py-2.5 rounded transition-colors">
-              Learn More
+            <Link
+              href="/contact"
+              className="border border-gray-200 hover:border-orange-400 hover:text-orange-500 text-gray-600 text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+            >
+              Make an Enquiry
             </Link>
           </div>
         </div>
 
-        <div className="hidden md:block flex-1">
-          <Image src="/GPS.jpg" alt="Car rental" width={600} height={400} className="rounded w-full object-cover" />
+        <div className="w-full md:flex-1 hidden md:block">
+          <Image
+            src="/GPS.jpg"
+            alt="AutoRentPro vehicle interior"
+            width={600}
+            height={400}
+            className="rounded-lg w-full object-cover"
+          />
         </div>
       </div>
 
-      {/* ── What we offer — large text intro + tight list ── */}
-      <div className="border-t border-gray-100 px-8 md:px-16 py-16">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-3xl sm:text-4xl font-bold text-gray-900 leading-snug mb-12 max-w-lg">
-            Everything you need,<br />nothing you don't.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 border-t border-gray-100 pt-10">
-            {services.map((s, i) => (
-              <div key={i}>
-                <p className="text-xs text-gray-400 mb-2">{String(i + 1).padStart(2, '0')}</p>
-                <h3 className="text-sm font-semibold text-gray-900 mb-1.5">{s.title}</h3>
+      {/* ── What we offer ── */}
+      <div className="border-t border-gray-100 bg-orange-50 px-6 sm:px-10 md:px-16 py-14">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs text-orange-500 uppercase tracking-widest font-medium mb-2">Our services</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-10">What we offer</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {services.map((s) => (
+              <div key={s.num} className="bg-white border border-orange-100 rounded-lg px-5 py-5">
+                <p className="text-xs text-orange-400 font-medium mb-3">{s.num}</p>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">{s.title}</h3>
                 <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
             ))}
@@ -72,65 +125,47 @@ const Edition = () => {
         </div>
       </div>
 
-      {/* ── Why us — dark band ── */}
-      <div className="bg-gray-900 px-8 md:px-16 py-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-16">
-            <div className="md:w-1/3">
-              <h2 className="text-2xl font-bold text-white mb-3">Why AutoRentPro</h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                We've built a rental experience that respects your time and your trust.
-              </p>
-            </div>
-            <div className="md:w-2/3 flex flex-col divide-y divide-gray-700">
-              {features.map((f, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:gap-12 py-5">
-                  <h3 className="text-sm font-medium text-white sm:w-40 shrink-0 mb-1 sm:mb-0">{f.title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
-                </div>
-              ))}
-            </div>
+      {/* ── Why AutoRentPro ── */}
+      <div className="px-6 sm:px-10 md:px-16 py-14 border-t border-gray-100">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-12">
+          <div className="md:w-1/3 shrink-0">
+            <p className="text-xs text-orange-500 uppercase tracking-widest font-medium mb-2">Why us</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Why AutoRentPro</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              We built this service around one idea — car hire should be simple,
+              predictable, and stress-free.
+            </p>
+          </div>
+          <div className="flex-1 divide-y divide-gray-100">
+            {reasons.map((r) => (
+              <div key={r.title} className="flex flex-col sm:flex-row sm:gap-10 py-5">
+                <h3 className="text-sm font-semibold text-gray-900 sm:w-44 shrink-0 mb-1 sm:mb-0">{r.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{r.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ── Promise + CTA ── */}
-      <div className="px-8 md:px-16 py-16 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
+      {/* ── Our promise + CTA ── */}
+      <div className="bg-orange-50 border-t border-orange-100 px-6 sm:px-10 md:px-16 py-14">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-12">
 
           {/* Promises */}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Our promise</h2>
-            <p className="text-sm text-gray-500 mb-8">Details that matter.</p>
-            <div className="flex flex-col divide-y divide-gray-100">
-              {promises.map((p, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:gap-12 py-4">
-                  <h3 className="text-sm font-medium text-gray-900 sm:w-44 shrink-0 mb-1 sm:mb-0">{p.title}</h3>
+            <p className="text-xs text-orange-500 uppercase tracking-widest font-medium mb-2">Standards</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Our promise to you</h2>
+            <div className="divide-y divide-gray-200">
+              {promises.map((p) => (
+                <div key={p.title} className="flex flex-col sm:flex-row sm:gap-10 py-5">
+                  <h3 className="text-sm font-semibold text-gray-900 sm:w-44 shrink-0 mb-1 sm:mb-0">{p.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{p.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* CTA panel */}
-          <div className="md:w-72 shrink-0 flex flex-col gap-10">
-            <p className="text-sm text-gray-400 italic leading-relaxed border-l-2 border-orange-500 pl-4">
-              "We didn't just rent cars — we deliver confidence, comfort, and class. From the moment you book until you return the keys."
-            </p>
-            <div className="border-t border-gray-100 pt-8">
-              <h3 className="text-base font-semibold text-gray-900 mb-1">Ready to drive?</h3>
-              <p className="text-sm text-gray-500 mb-5 leading-relaxed">Book a consultation or browse our full fleet today.</p>
-              <div className="flex flex-col gap-2">
-                <Link href="/contact" className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2.5 rounded transition-colors text-center">
-                  Book Consultation
-                </Link>
-                <Link href="/vehicles" className="border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-medium px-5 py-2.5 rounded transition-colors text-center">
-                  Browse Fleet
-                </Link>
-              </div>
-            </div>
-          </div>
-
+         
         </div>
       </div>
 

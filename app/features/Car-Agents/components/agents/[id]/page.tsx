@@ -51,7 +51,7 @@ const SingleAgentPage = () => {
         if (agentData?.id) {
           setAgent(agentData);
           try {
-            const relatedRes = await fetch('/api/agents');
+            const relatedRes = await fetch('/features/Car-Agents/api/agents');
             if (relatedRes.ok) {
               const all = await relatedRes.json();
               const arr = Array.isArray(all) ? all : all.agents || [];
